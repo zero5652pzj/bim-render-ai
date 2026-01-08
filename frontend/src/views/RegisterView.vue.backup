@@ -1,0 +1,287 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { MessagePlugin } from 'tdesign-vue-next'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const registerType = ref<'email' | 'phone'>('email')
+
+const formData = ref({
+  fullName: '',
+  email: '',
+  phone: '',
+  password: '',
+  confirmPassword: ''
+})
+
+const loading = ref(false)
+const error = ref('')
+
+// 注册
+async function handleRegister() {
+  if (!formData.value.fullName) {
+    error.value = '请填写昵称'
+    return
+  }
+
+  if (registerType.value === 'email' && !formData.value.email) {
+    error.value = '请填写邮箱'
+    return
+  }
+
+  if (registerType.value === 'phone' && !formData.value.phone) {
+    error.value = '请填写手机号'
+    return
+  }
+
+  if (!formData.value.password) {
+    error.value = '请填写密码'
+    return
+  }
+
+  if (formData.value.password !== formData.value.confirmPassword) {
+    error.value = '两次输入的密码不一致'
+    return
+  }
+
+  if (formData.value.password.length < 6) {
+    error.value = '密码至少 6 位'
+    return
+  }
+
+  loading.value = true
+  error.value = ''
+
+  try {
+    let result
+
+    if (registerType.value === 'email') {
+      result = await authStore.registerWithEmail(
+        formData.value.email,
+        formData.value.password,
+        formData.value.fullName
+      )
+    } else {
+      result = await authStore.registerWithPhone(
+        formData.value.phone,
+        formData.value.password,
+        formData.value.fullName
+      )
+    }
+
+    if (result.success) {
+      MessagePlugin.success('注册成功')
+      router.push('/')
+    } else {
+      error.value = result.error || '注册失败'
+    }
+  } catch (err: any) {
+    error.value = err.message || '注册失败'
+  } finally {
+    loading.value = false
+  }
+}
+</script>
+
+<template>
+  <div class="register-container">
+    <div class="register-card">
+      <!-- Logo -->
+      <div class="logo-section">
+        <h1 class="logo">AI+BIM</h1>
+        <p class="subtitle">智能 BIM 建模平台</p>
+      </div>
+
+      <!-- 错误提示 -->
+      <TAlert
+        v-if="error"
+        :message="error"
+        theme="error"
+        :closable="true"
+        @close="error = ''"
+        class="error-alert"
+      />
+
+      <!-- 注册类型切换 -->
+      <TRadioGroup
+        v-model="registerType"
+        variant="default-filled"
+        size="large"
+        class="register-type"
+      >
+        <TRadioButton value="email">邮箱注册</TRadioButton>
+        <TRadioButton value="phone">手机号注册</TRadioButton>
+      </TRadioGroup>
+
+      <!-- 注册表单 -->
+      <TForm
+        :data="formData"
+        @submit="handleRegister"
+        class="register-form"
+      >
+        <TForm-item name="fullName" label="昵称">
+          <TInput
+            v-model="formData.fullName"
+            placeholder="请输入昵称"
+            size="large"
+            :prefix-icon="'user'"
+          />
+        </TForm-item>
+
+        <TForm-item
+          v-if="registerType === 'email'"
+          name="email"
+          label="邮箱"
+        >
+          <TInput
+            v-model="formData.email"
+            placeholder="请输入邮箱"
+            type="email"
+            size="large"
+            :prefix-icon="'mail'"
+          />
+        </TForm-item>
+
+        <TForm-item
+          v-else
+          name="phone"
+          label="手机号"
+        >
+          <TInput
+            v-model="formData.phone"
+            placeholder="请输入手机号"
+            type="tel"
+            size="large"
+            :prefix-icon="'phone'"
+          />
+        </TForm-item>
+
+        <TForm-item name="password" label="密码">
+          <TInput
+            v-model="formData.password"
+            placeholder="请输入密码（至少 6 位）"
+            type="password"
+            size="large"
+            :prefix-icon="'lock-on'"
+          />
+        </TForm-item>
+
+        <TForm-item name="confirmPassword" label="确认密码">
+          <TInput
+            v-model="formData.confirmPassword"
+            placeholder="请再次输入密码"
+            type="password"
+            size="large"
+            :prefix-icon="'lock-on'"
+          />
+        </TForm-item>
+
+        <TForm-item>
+          <TButton
+            type="submit"
+            theme="primary"
+            size="large"
+            block
+            :loading="loading"
+            :disabled="loading"
+          >
+            {{ loading ? '注册中...' : '注册' }}
+          </TButton>
+        </TForm-item>
+      </TForm>
+
+      <!-- 切换到登录 -->
+      <div class="switch-section">
+        <span>已有账号？</span>
+        <TButton
+          variant="text"
+          theme="primary"
+          size="small"
+          @click="router.push('/login')"
+        >
+          立即登录
+        </TButton>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  border-radius: 16px;
+  padding: 48px 32px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+.logo-section {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.logo {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+.register-type {
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+.register-type :deep(.t-radio-group) {
+  width: 100%;
+}
+
+.register-type :deep(.t-radio-button) {
+  flex: 1;
+  text-align: center;
+}
+
+.register-form {
+  margin-bottom: 24px;
+}
+
+.error-alert {
+  margin-bottom: 24px;
+}
+
+.switch-section {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .register-card {
+    padding: 32px 24px;
+    margin: 0 16px;
+  }
+
+  .logo {
+    font-size: 28px;
+  }
+}
+</style>

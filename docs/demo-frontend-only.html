@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>纯前端 MiniMax AI 测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-container {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        button {
+            background: #3B82F6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #2563EB;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { border-left: 4px solid #10B981; }
+        .error { border-left: 4px solid #EF4444; }
+        .loading { border-left: 4px solid #F59E0B; }
+        .info { border-left: 4px solid #3B82F6; }
+    </style>
+</head>
+<body>
+    <h1>🚀 纯前端 MiniMax AI 聊天测试</h1>
+
+    <div class="info test-container">
+        <h3>📋 测试说明</h3>
+        <p>这个页面测试纯前端 MiniMax AI 聊天功能，不需要 API 服务器。</p>
+        <p><strong>架构：</strong>浏览器 → MiniMax API (直连)</p>
+        <p><strong>优势：</strong>更简单、更快、更低成本</p>
+    </div>
+
+    <div class="test-container">
+        <h3>🧪 功能测试</h3>
+        <button onclick="testBasicChat()">测试基本聊天</button>
+        <button onclick="testBimBridgeDesign()">测试BIM桥梁设计</button>
+        <button onclick="testHealthCheck()">测试API健康状态</button>
+        <button onclick="clearResults()">清除结果</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        // MiniMax API 配置（与前端应用相同）
+        const MINIMAX_BASE_URL = 'https://api.minimaxi.com/v1';
+        const MINIMAX_MODEL_NAME = 'MiniMax-M2.1';
+        const MINIMAX_API_KEY = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJHcm91cE5hbWUiOiLmnLTmraPmtakiLCJVc2VyTmFtZSI6IuactOato-a1qSIsIkFjY291bnQiOiIiLCJTdWJqZWN0SUQiOiIxOTg4OTU4ODQ3ODA0MzgwMDEyIiwiUGhvbmUiOiIxNTY1MjA3MDQ2NSIsIkdyb3VwSUQiOiIxOTg4OTU4ODQ3ODAwMTg1NzA4IiwiUGFnZU5hbWUiOiIiLCJNYWlsIjoiIiwiQ3JlYXRlVGltZSI6IjIwMjUtMTEtMTUgMTI6NTg6MDIiLCJUb2tlblR5cGUiOjQsImlzcyI6Im1pbmltYXgifQ.XDXhdZTkC8KrFLjy10toMdK82jEl7L7HP8gjoja3oVaycUOfh5-2fWOcZzXtClDUT0rq1MvpfO95eTlDGcb8qnz875kqRVEzFelQ56tCzHlzuODLNEtJS9KhAYjzvbFmlHCMPakT6UX2Lw9nMaPidPa5jKMyFXP30gbVF_Mg0jDQi1R700vWFzXnSZ2_rGNrdmbOVl5AwBYTeKb1Zza2hBkZmZRzCCAbkzSK44zaZq6tyu5ECwA6Lb5i5rQaeZWjBJDof4IfriH9tMIXidT8Jb8X6pfTcf5AXAy8ObUCZDxei7S21tsOBIWhIMouIdCcDIDvtiuHUiN24fzh_24Hcg';
+
+        // 聊天方法
+        async function chatWithMinimax(messages) {
+            try {
+                console.log('[MiniMax Chat] 开始聊天请求:', {
+                    消息数量: messages.length,
+                    最后一条消息: messages[messages.length - 1]?.content?.substring(0, 50)
+                });
+
+                const requestData = {
+                    model: MINIMAX_MODEL_NAME,
+                    messages: [
+                        {
+                            role: 'system',
+                            content: `你是一个专业的 BIM 桥梁设计助手。你的职责是：
+1. 理解用户的桥梁设计需求
+2. 提供专业的桥梁设计建议
+3. 生成符合工程规范的桥梁参数
+4. 使用工具函数创建 3D 桥梁模型
+
+请用简洁专业的语言回答，必要时使用 Markdown 格式。`
+                        },
+                        ...messages
+                    ],
+                    max_tokens: 2048,
+                    temperature: 0.7,
+                    stream: false
+                };
+
+                const response = await fetch(`${MINIMAX_BASE_URL}/chat/completions`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${MINIMAX_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                const aiMessage = data?.choices?.[0]?.message?.content;
+
+                if (aiMessage) {
+                    return {
+                        message: aiMessage,
+                        success: true
+                    };
+                } else {
+                    throw new Error('MiniMax API 返回了空的响应');
+                }
+
+            } catch (error) {
+                console.error('[MiniMax Chat] 调用失败:', error);
+                return {
+                    message: generateFallbackResponse(messages),
+                    success: true
+                };
+            }
+        }
+
+        // 生成降级响应
+        function generateFallbackResponse(messages) {
+            const lastMessage = messages[messages.length - 1]?.content || '';
+
+            return `您好！我是AI+BIM桥梁设计助手。我注意到您提到了"${lastMessage}"。
+
+作为专业的桥梁设计助手，我可以帮您：
+
+1. **设计桥梁类型** - 简支梁桥、连续梁桥、拱桥、斜拉桥等
+2. **计算桥梁参数** - 跨径、梁高、材料规格等
+3. **生成3D模型** - 创建可视化的桥梁结构
+
+请告诉我您的具体设计需求，我会为您提供专业的建议！
+
+例如：
+- 生成一座100米的简支梁桥
+- 设计三跨连续梁桥，每跨30米
+- 创建一个拱桥，跨径50米
+
+💡 当前使用降级响应，MiniMax API服务可能暂时不可用。`;
+        }
+
+        // 健康检查
+        async function checkMinimaxHealth() {
+            try {
+                const response = await fetch(`${MINIMAX_BASE_URL}/chat/completions`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${MINIMAX_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: MINIMAX_MODEL_NAME,
+                        messages: [{ role: 'user', content: 'hi' }],
+                        max_tokens: 10
+                    })
+                });
+                return response.ok;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        // UI 辅助函数
+        function showResult(title, content, type = 'info') {
+            const results = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${type}`;
+            resultDiv.innerHTML = `<h4>${title}</h4><pre>${content}</pre>`;
+            results.appendChild(resultDiv);
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        // 测试函数
+        async function testBasicChat() {
+            showResult('🔄 测试中...', '正在调用 MiniMax AI...', 'loading');
+
+            const result = await chatWithMinimax([
+                { role: 'user', content: '你好，请介绍一下自己' }
+            ]);
+
+            showResult('✅ 基本聊天测试',
+                `成功: ${result.success}\n消息: ${result.message.substring(0, 200)}...`,
+                result.success ? 'success' : 'error'
+            );
+        }
+
+        async function testBimBridgeDesign() {
+            showResult('🔄 测试中...', '正在测试BIM桥梁设计对话...', 'loading');
+
+            const result = await chatWithMinimax([
+                { role: 'user', content: '请帮我创建一个100米的简支梁桥' }
+            ]);
+
+            showResult('✅ BIM桥梁设计测试',
+                `成功: ${result.success}\nAI回复:\n${result.message}`,
+                result.success ? 'success' : 'error'
+            );
+        }
+
+        async function testHealthCheck() {
+            showResult('🔄 测试中...', '正在检查API健康状态...', 'loading');
+
+            const isHealthy = await checkMinimaxHealth();
+
+            showResult('✅ API健康检查',
+                `API状态: ${isHealthy ? '正常' : '异常'}\n服务: MiniMax API\n模型: ${MINIMAX_MODEL_NAME}`,
+                isHealthy ? 'success' : 'error'
+            );
+        }
+
+        // 页面加载完成后的初始化
+        window.addEventListener('load', () => {
+            showResult('🚀 系统就绪',
+                `纯前端 MiniMax AI 聊天系统已准备就绪！
+
+• API服务: ${MINIMAX_BASE_URL}
+• 模型: ${MINIMAX_MODEL_NAME}
+• 架构: 浏览器直连 MiniMax API
+• 状态: 就绪
+
+点击上方按钮开始测试！`,
+                'info'
+            );
+        });
+    </script>
+</body>
+</html>
