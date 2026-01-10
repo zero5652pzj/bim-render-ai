@@ -15,6 +15,7 @@ export const useMessageStore = defineStore('message', () => {
   const messages = ref<Message[]>([])
   const loading = ref(false)
   const sending = ref(false)
+  const isDeletingMessage = ref(false)
 
   // 加载消息历史
   async function loadMessages(conversationId: string) {
@@ -71,18 +72,51 @@ export const useMessageStore = defineStore('message', () => {
     }
   }
 
-  // 软删除消息
-  async function softDeleteMessage(messageId: string) {
-    const { error } = await supabase
-      .from('messages')
-      .update({ is_deleted: true })
-      .eq('id', messageId)
+  // 删除消息（软删除）
+  async function deleteMessage(messageId: string): Promise<boolean> {
+    isDeletingMessage.value = true
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .update({ is_deleted: true })
+        .eq('id', messageId)
 
-    if (!error) {
-      messages.value = messages.value.filter(m => m.id !== messageId)
-      return true
+      if (!error) {
+        messages.value = messages.value.filter(m => m.id !== messageId)
+        console.log('[MessageStore] 消息删除成功：', messageId)
+        return true
+      } else {
+        console.error('[MessageStore] 消息删除失败：', error)
+        return false
+      }
+    } catch (err) {
+      console.error('[MessageStore] 删除消息异常：', err)
+      return false
+    } finally {
+      isDeletingMessage.value = false
     }
-    return false
+  }
+
+  // 清空指定对话的所有消息
+  async function clearConversationMessages(conversationId: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .update({ is_deleted: true })
+        .eq('conversation_id', conversationId)
+
+      if (!error) {
+        messages.value = []
+        console.log('[MessageStore] 清空对话消息成功：', conversationId)
+        return true
+      } else {
+        console.error('[MessageStore] 清空对话消息失败：', error)
+        return false
+      }
+    } catch (err) {
+      console.error('[MessageStore] 清空对话消息异常：', err)
+      return false
+    }
   }
 
   // 清空当前会话的消息
@@ -94,9 +128,11 @@ export const useMessageStore = defineStore('message', () => {
     messages,
     loading,
     sending,
+    isDeletingMessage,
     loadMessages,
     sendMessage,
-    softDeleteMessage,
+    deleteMessage,
+    clearConversationMessages,
     clearMessages,
   }
 })

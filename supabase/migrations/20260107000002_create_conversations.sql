@@ -25,7 +25,8 @@ CREATE POLICY "用户可创建会话"
 
 CREATE POLICY "用户可更新自己的会话"
   ON public.conversations FOR UPDATE
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "用户可删除自己的会话"
   ON public.conversations FOR DELETE

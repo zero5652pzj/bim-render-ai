@@ -6,8 +6,11 @@ import { useAuthStore } from '@/stores/auth'
 import { useConversationStore } from '@/stores/conversation'
 import { useMessageStore } from '@/stores/message'
 import UserMenu from '@/components/common/UserMenu.vue'
+import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import ClearHistoryDialog from '@/components/ClearHistoryDialog.vue'
 import { ChatSender } from '@tdesign-vue-next/chat'
 import { chatWithMinimax } from '@/lib/minimax-api'
+import { supabase } from '@/lib/supabase'
 
 const authStore = useAuthStore()
 const conversationStore = useConversationStore()
@@ -22,12 +25,14 @@ const aiResponding = ref(false)
 const fileInput = ref<HTMLInputElement>()
 const chatContainerRef = ref<HTMLElement>()
 
+// 删除相关状态
+const deleteDialogVisible = ref(false)
+const clearHistoryDialogVisible = ref(false)
+const conversationToDelete = ref<any>(null)
+
 // AI 响应动画状态
 const aiTypingDots = ref('')
 let typingInterval: NodeJS.Timeout | null = null
-
-// 开发环境标志
-const isDev = import.meta.env.DEV
 
 // 启动 AI 打字动画
 function startAiTyping() {
@@ -111,6 +116,61 @@ async function handleNewConversation() {
 // 处理选择会话
 function handleSelectConversation(conversation: any) {
   conversationStore.selectConversation(conversation)
+}
+
+// 处理删除对话
+function handleDeleteConversation(conversation: any, event: Event) {
+  event.stopPropagation()
+  conversationToDelete.value = conversation
+  deleteDialogVisible.value = true
+}
+
+// 确认删除对话
+async function confirmDeleteConversation() {
+  if (!conversationToDelete.value) return
+
+  const success = await conversationStore.deleteConversation(conversationToDelete.value.id)
+
+  if (success) {
+    MessagePlugin.success('对话已删除')
+  } else {
+    MessagePlugin.error('删除失败，请重试')
+  }
+
+  deleteDialogVisible.value = false
+  conversationToDelete.value = null
+}
+
+// 处理清空所有历史
+function handleClearAllHistory() {
+  clearHistoryDialogVisible.value = true
+}
+
+// 确认清空所有历史
+async function confirmClearAllHistory() {
+  const success = await conversationStore.clearAllHistory()
+
+  if (success) {
+    MessagePlugin.success('所有历史记录已清空')
+  } else {
+    MessagePlugin.error('清空失败，请重试')
+  }
+
+  clearHistoryDialogVisible.value = false
+}
+
+// 修复 RLS 策略（开发环境使用）
+
+// 处理删除消息
+async function handleDeleteMessage(messageId: string) {
+  const success = await messageStore.deleteMessage(messageId)
+
+  if (success) {
+    // 消息删除成功，使用淡出动画
+    MessagePlugin.success('消息已删除')
+  } else {
+    MessagePlugin.error('删除失败，请重试')
+  }
 }
 
 // 处理发送消息
@@ -296,6 +356,22 @@ function handleFileSelect(event: Event) {
         </TButton>
       </div>
 
+      <!-- 清空所有历史按钮 -->
+      <div class="clear-history-button" v-if="!sidebarCollapsed && conversationStore.conversations.length > 0">
+        <TButton
+          variant="text"
+          block
+          @click="handleClearAllHistory"
+          :loading="conversationStore.isClearingAll"
+          class="clear-history-btn"
+        >
+          <template #icon>
+            <TIcon name="delete" />
+          </template>
+          <span>清空所有历史</span>
+        </TButton>
+      </div>
+
       <!-- 会话列表 -->
       <div class="conversation-list">
         <div v-if="conversationStore.conversations.length === 0 && !conversationStore.loading" class="empty-state">
@@ -325,6 +401,17 @@ function handleFileSelect(event: Event) {
               <p class="conversation-title">{{ conv.title }}</p>
               <p class="conversation-time">{{ new Date(conv.created_at).toLocaleDateString() }}</p>
             </div>
+            <!-- 删除按钮 -->
+            <button
+              v-if="!sidebarCollapsed"
+              class="delete-conversation-btn"
+              @click="handleDeleteConversation(conv, $event)"
+              :disabled="conversationStore.isDeleting"
+              :loading="conversationStore.isDeleting"
+              title="删除对话"
+            >
+              <TIcon name="delete" size="16px" />
+            </button>
           </div>
         </div>
       </div>
@@ -435,9 +522,21 @@ function handleFileSelect(event: Event) {
                   </svg>
                 </div>
               </div>
-              <div class="message-content">
-                <div class="message-text" v-html="msg.content.replace(/\n/g, '<br>')"></div>
-                <div class="message-time">{{ new Date(msg.created_at).toLocaleTimeString() }}</div>
+              <div class="message-content-wrapper">
+                <div class="message-content">
+                  <div class="message-text" v-html="msg.content.replace(/\n/g, '<br>')"></div>
+                  <div class="message-time">{{ new Date(msg.created_at).toLocaleTimeString() }}</div>
+                </div>
+                <!-- 消息删除按钮 -->
+                <button
+                  class="delete-message-btn"
+                  @click="handleDeleteMessage(msg.id)"
+                  :disabled="messageStore.isDeletingMessage"
+                  :loading="messageStore.isDeletingMessage"
+                  title="删除消息"
+                >
+                  <TIcon name="delete" size="14px" />
+                </button>
               </div>
             </div>
 
@@ -539,6 +638,27 @@ function handleFileSelect(event: Event) {
         </div>
       </div>
     </main>
+
+    <!-- 删除确认对话框 -->
+    <ConfirmDialog
+      :visible="deleteDialogVisible"
+      title="确认删除"
+      :message="`确定要删除对话「${conversationToDelete?.title || ''}」吗？此操作将删除对话中的所有消息，且无法恢复。`"
+      confirm-text="删除"
+      cancel-text="取消"
+      theme="danger"
+      :loading="conversationStore.isDeleting"
+      @close="deleteDialogVisible = false"
+      @confirm="confirmDeleteConversation"
+    />
+
+    <!-- 清空历史对话框 -->
+    <ClearHistoryDialog
+      :visible="clearHistoryDialogVisible"
+      :loading="conversationStore.isClearingAll"
+      @close="clearHistoryDialogVisible = false"
+      @confirm="confirmClearAllHistory"
+    />
 
   </div>
 </template>
@@ -1304,6 +1424,79 @@ function handleFileSelect(event: Event) {
   opacity: 0.6;
 }
 
+/* 删除按钮样式 */
+.delete-conversation-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.conversation-item:hover .delete-conversation-btn {
+  opacity: 1;
+}
+
+.delete-conversation-btn:hover {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+}
+
+.delete-conversation-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* 清空所有历史按钮样式 */
+.clear-history-button {
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+.clear-history-btn {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 14px !important;
+  transition: all 0.2s ease !important;
+}
+
+.clear-history-btn:hover {
+  color: #f44336 !important;
+  background: rgba(244, 67, 54, 0.1) !important;
+}
+
+/* 修复 RLS 策略按钮样式 */
+.fix-rls-button {
+  padding: 8px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+.fix-rls-btn {
+  color: rgba(255, 255, 255, 0.5) !important;
+  font-size: 12px !important;
+  transition: all 0.2s ease !important;
+}
+
+.fix-rls-btn:hover {
+  color: #3B82F6 !important;
+  background: rgba(59, 130, 246, 0.1) !important;
+}
+
 /* 聊天界面样式 */
 .chat-section {
   flex: 1;
@@ -1481,6 +1674,49 @@ function handleFileSelect(event: Event) {
 
 .message-ai .message-time {
   text-align: left;
+}
+
+/* 消息内容包装器 */
+.message-content-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
+}
+
+/* 消息删除按钮样式 */
+.delete-message-btn {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: rgba(0, 0, 0, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.2s ease;
+  padding: 0;
+  backdrop-filter: blur(10px);
+}
+
+.message-item:hover .delete-message-btn {
+  opacity: 1;
+}
+
+.delete-message-btn:hover {
+  background: rgba(244, 67, 54, 0.2);
+  color: #f44336;
+}
+
+.delete-message-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 /* 响应式适配 */

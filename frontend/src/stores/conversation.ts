@@ -7,6 +7,8 @@ export const useConversationStore = defineStore('conversation', () => {
   const conversations = ref<Tables<'conversations'>[]>([])
   const currentConversation = ref<Tables<'conversations'> | null>(null)
   const loading = ref(false)
+  const isDeleting = ref(false)
+  const isClearingAll = ref(false)
 
   // 加载会话列表
   async function loadConversations() {
@@ -70,20 +72,54 @@ export const useConversationStore = defineStore('conversation', () => {
   }
 
   // 删除会话（软删除）
-  async function deleteConversation(id: string) {
-    const { error } = await supabase
-      .from('conversations')
-      .update({ is_deleted: true })
-      .eq('id', id)
+  async function deleteConversation(id: string): Promise<boolean> {
+    isDeleting.value = true
+    try {
+      const { error } = await supabase
+        .from('conversations')
+        .update({ is_deleted: true })
+        .eq('id', id)
 
-    if (!error) {
-      conversations.value = conversations.value.filter(c => c.id !== id)
-      if (currentConversation.value?.id === id) {
-        currentConversation.value = null
+      if (!error) {
+        conversations.value = conversations.value.filter(c => c.id !== id)
+        if (currentConversation.value?.id === id) {
+          currentConversation.value = null
+        }
+        console.log('[ConversationStore] 会话删除成功：', id)
+        return true
+      } else {
+        console.error('[ConversationStore] 会话删除失败：', error)
+        return false
       }
-      return true
+    } catch (err) {
+      console.error('[ConversationStore] 删除会话异常：', err)
+      return false
+    } finally {
+      isDeleting.value = false
     }
-    return false
+  }
+
+  // 清空所有历史记录
+  async function clearAllHistory(): Promise<boolean> {
+    isClearingAll.value = true
+    try {
+      const { error } = await supabase.rpc('clear_current_user_history')
+
+      if (!error) {
+        conversations.value = []
+        currentConversation.value = null
+        console.log('[ConversationStore] 清空所有历史成功')
+        return true
+      } else {
+        console.error('[ConversationStore] 清空所有历史失败：', error)
+        return false
+      }
+    } catch (err) {
+      console.error('[ConversationStore] 清空所有历史异常：', err)
+      return false
+    } finally {
+      isClearingAll.value = false
+    }
   }
 
   // 重命名会话
@@ -113,9 +149,12 @@ export const useConversationStore = defineStore('conversation', () => {
     conversations,
     currentConversation,
     loading,
+    isDeleting,
+    isClearingAll,
     loadConversations,
     createConversation,
     deleteConversation,
+    clearAllHistory,
     renameConversation,
     selectConversation,
   }

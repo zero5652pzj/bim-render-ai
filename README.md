@@ -108,6 +108,31 @@ supabase db reset
 supabase gen types typescript --local > frontend/src/types/database.ts
 ```
 
+### 数据库初始化
+
+#### 生产环境部署
+在生产环境中部署时，需要执行完整的数据库初始化脚本：
+
+1. **通过Supabase Dashboard**：
+   - 进入 Supabase Dashboard > SQL Editor
+   - 复制 `production-database-init.sql` 内容
+   - 点击 Run 执行
+
+2. **通过Supabase CLI**：
+   ```bash
+   supabase db reset
+   ```
+
+#### RLS权限配置
+删除功能需要正确的RLS权限配置。生产环境中请确保使用 `production-database-init.sql` 脚本初始化数据库。
+
+如果遇到删除功能权限错误（code: 42501），可以参考以下修复脚本：
+- `production-database-init.sql` - 完整的数据库初始化脚本
+- `comprehensive-rls-fix.sql` - 全面RLS修复脚本（开发调试用）
+- `final-comprehensive-fix.sql` - 最终彻底修复脚本（开发调试用）
+
+**注意**：开发调试脚本仅用于问题排查，生产环境请使用 `production-database-init.sql`
+
 ## 📖 文档
 
 - [需求确认文档](./.claude/prds/需求确认文档-20260106.md)
@@ -115,6 +140,31 @@ supabase gen types typescript --local > frontend/src/types/database.ts
 - [开发指南](./.claude/prds/开发指南.md)
 - [认证功能实施报告](./AUTH_IMPROVEMENTS_SUMMARY.md)
 - [OpenSpec 规范](./openspec/AGENTS.md)
+
+## 📋 删除功能开发文档
+
+### 功能概述
+删除功能是AI+BIM聊天记录管理系统的核心组件之一，提供安全的聊天记录删除和批量清空功能。
+
+### 核心文件
+- `frontend/src/stores/conversation.ts` - 会话Store，包含删除逻辑
+- `frontend/src/stores/message.ts` - 消息Store，包含删除逻辑
+- `frontend/src/components/ConfirmDialog.vue` - 通用确认对话框组件
+- `frontend/src/components/ClearHistoryDialog.vue` - 批量删除专用对话框
+- `frontend/src/views/MainView.vue` - 主视图，集成删除功能UI
+
+### 数据库相关
+- `supabase/migrations/` - 数据库迁移文件
+- `production-database-init.sql` - 生产环境数据库初始化脚本
+- `comprehensive-rls-fix.sql` - RLS权限全面修复脚本
+- `final-comprehensive-fix.sql` - RLS权限最终修复脚本
+
+### 技术特性
+- **软删除机制**：使用 `is_deleted` 字段标记删除，不物理移除数据
+- **RLS权限策略**：基于用户身份的行级安全控制
+- **乐观更新**：UI立即反映操作，失败时回滚
+- **确认对话框**：防止误操作的二次确认机制
+- **类型安全**：TypeScript完整类型定义
 
 ## ✨ 主要功能
 
@@ -143,6 +193,20 @@ supabase gen types typescript --local > frontend/src/types/database.ts
 - 智能建模建议
 - 流式响应支持
 - 多轮对话记忆
+
+### 🗑️ 聊天记录管理
+- **单个对话删除**：安全删除指定对话及其所有消息
+- **批量删除**：一键清空所有历史聊天记录
+- **确认对话框**：防止误操作的二次确认机制
+- **软删除机制**：数据标记删除而非物理删除，保障数据安全
+- **权限控制**：基于Supabase RLS的行级安全策略
+- **用户反馈**：实时状态提示和错误处理
+
+### 🔐 数据库安全
+- **行级安全策略（RLS）**：确保用户只能访问自己的数据
+- **用户数据隔离**：每个用户的数据完全独立
+- **权限验证**：多层级权限检查机制
+- **数据完整性**：外键约束和触发器保护
 
 ## 🤝 贡献指南
 
