@@ -25,6 +25,11 @@ function closeMenu() {
   menuVisible.value = false
 }
 
+// 处理登录按钮点击
+function handleLogin() {
+  router.push('/login')
+}
+
 // 登出
 async function handleLogout() {
   try {
@@ -76,44 +81,63 @@ function goToSettings() {
 
 <template>
   <div class="user-menu">
-    <TButton
-      variant="text"
-      block
-      class="user-button"
-      @click="toggleMenu"
-    >
-      <div class="user-info">
-        <TAvatar
-          :image="authStore.profile?.avatar_url"
-          :fallback="authStore.profile?.full_name?.[0] || 'U'"
-          size="small"
-        />
-        <span class="user-name">
-          {{ authStore.profile?.full_name || '用户' }}
-        </span>
-      </div>
-      <TIcon
-        name="chevron-down"
-        :class="{ rotated: menuVisible }"
-        class="chevron-icon"
-      />
-    </TButton>
+    <!-- 未登录状态：显示登录按钮 -->
+    <div v-if="!authStore.isAuthenticated" class="login-section">
+      <TButton
+        theme="primary"
+        variant="outline"
+        block
+        class="login-button"
+        @click="handleLogin"
+      >
+        <template #icon>
+          <TIcon name="login" />
+        </template>
+        <span>登录</span>
+      </TButton>
+    </div>
 
-    <!-- 自定义下拉菜单 -->
-    <div v-if="menuVisible" class="custom-dropdown">
-      <div class="dropdown-mask" @click="closeMenu"></div>
-      <div class="dropdown-menu">
-        <div class="dropdown-item" @click="viewProfile">
-          <TIcon name="user" />
-          <span>个人资料</span>
+    <!-- 已登录状态：显示用户菜单 -->
+    <div v-else class="user-section">
+      <TButton
+        variant="text"
+        block
+        class="user-button"
+        @click="toggleMenu"
+      >
+        <div class="user-info">
+          <TAvatar
+            :image="authStore.profile?.avatar_url"
+            :fallback="authStore.profile?.full_name?.[0] || 'U'"
+            size="small"
+          />
+          <span class="user-name">
+            {{ authStore.profile?.full_name || '用户' }}
+          </span>
         </div>
-        <div class="dropdown-item" @click="goToSettings">
-          <TIcon name="setting" />
-          <span>设置</span>
-        </div>
-        <div class="dropdown-item dropdown-item-danger" @click="handleLogout">
-          <TIcon name="logout" />
-          <span>退出登录</span>
+        <TIcon
+          name="chevron-down"
+          :class="{ rotated: menuVisible }"
+          class="chevron-icon"
+        />
+      </TButton>
+
+      <!-- 自定义下拉菜单 -->
+      <div v-if="menuVisible" class="custom-dropdown">
+        <div class="dropdown-mask" @click="closeMenu"></div>
+        <div class="dropdown-menu">
+          <div class="dropdown-item" @click="viewProfile">
+            <TIcon name="user" />
+            <span>个人资料</span>
+          </div>
+          <div class="dropdown-item" @click="goToSettings">
+            <TIcon name="setting" />
+            <span>设置</span>
+          </div>
+          <div class="dropdown-item dropdown-item-danger" @click="handleLogout">
+            <TIcon name="logout" />
+            <span>退出登录</span>
+          </div>
         </div>
       </div>
     </div>
@@ -123,6 +147,37 @@ function goToSettings() {
 <style scoped>
 .user-menu {
   width: 100%;
+}
+
+/* 登录按钮样式 */
+.login-section {
+  padding: 0;
+}
+
+.login-button {
+  justify-content: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  background: rgba(59, 130, 246, 0.1) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  color: white !important;
+}
+
+.login-button:hover {
+  background: rgba(59, 130, 246, 0.2) !important;
+  border-color: rgba(59, 130, 246, 0.5) !important;
+  transform: translateY(-1px);
+}
+
+.login-button .t-icon {
+  font-size: 16px;
+  margin-right: 8px;
+}
+
+.login-button span {
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .user-button {

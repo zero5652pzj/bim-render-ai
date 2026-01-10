@@ -1,0 +1,92 @@
+### New console messages
+- [LOG] [loadProfile] Profile loaded: 测试账号 @ http://localhost:5173/src/stores/auth.ts:71
+- [LOG] [Router Guard] {to: main, from: undefined, isAuthenticated: true, requiresAuth: false, isCurre...
+- [LOG] [Auth State Change] INITIAL_SESSION c9a4f192-409a-4876-accc-b2b9a615a742 @ http://localhost:51...
+
+### Page state
+- Page URL: http://localhost:5173/
+- Page Title: AI+BIM 建模助手
+- Page Snapshot:
+```yaml
+- generic [ref=e4]:
+  - complementary [ref=e9]:
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - img [ref=e13]
+        - heading "AI+BIM" [level=2] [ref=e17]
+      - button [ref=e18] [cursor=pointer]:
+        - img [ref=e20]
+    - button "新建对话" [ref=e23] [cursor=pointer]:
+      - img [ref=e24]
+      - generic [ref=e27]: 新建对话
+    - button "清空所有历史" [ref=e29] [cursor=pointer]:
+      - img [ref=e30]
+      - generic [ref=e33]: 清空所有历史
+    - generic [ref=e35]:
+      - generic [ref=e36] [cursor=pointer]:
+        - img [ref=e38]
+        - generic [ref=e40]:
+          - paragraph [ref=e41]: 设计一个拱桥，跨径 50 米
+          - paragraph [ref=e42]: 2026/1/10
+        - button "删除对话" [ref=e43]:
+          - img [ref=e44]
+      - generic [ref=e46] [cursor=pointer]:
+        - img [ref=e48]
+        - generic [ref=e50]:
+          - paragraph [ref=e51]: 查看之前设计的桥梁参数
+          - paragraph [ref=e52]: 2026/1/9
+        - button "删除对话" [ref=e53]:
+          - img [ref=e54]
+      - generic [ref=e56] [cursor=pointer]:
+        - img [ref=e58]
+        - generic [ref=e60]:
+          - paragraph [ref=e61]: 创建三跨连续梁桥，每跨 30 米
+          - paragraph [ref=e62]: 2026/1/8
+        - button "删除对话" [ref=e63]:
+          - img [ref=e64]
+      - generic [ref=e66] [cursor=pointer]:
+        - img [ref=e68]
+        - generic [ref=e70]:
+          - paragraph [ref=e71]: 生成一座 100 米的简支梁桥
+          - paragraph [ref=e72]: 2026/1/8
+        - button "删除对话" [ref=e73]:
+          - img [ref=e74]
+    - button "测试账号" [ref=e79] [cursor=pointer]:
+      - generic [ref=e80]:
+        - generic [ref=e83]: 测试账号
+        - img [ref=e84]
+  - main [ref=e86]:
+    - generic [ref=e88]:
+      - generic [ref=e89]:
+        - img [ref=e91]
+        - heading "你好！我是 AI+BIM 助手" [level=1] [ref=e96]
+        - paragraph [ref=e97]: 我可以帮助你设计和生成各种类型的桥梁模型
+      - generic [ref=e98]:
+        - generic [ref=e99] [cursor=pointer]:
+          - img [ref=e101]
+          - heading "生成一座 100 米的简支梁桥" [level=3] [ref=e106]
+        - generic [ref=e107] [cursor=pointer]:
+          - img [ref=e109]
+          - heading "创建三跨连续梁桥，每跨 30 米" [level=3] [ref=e111]
+        - generic [ref=e112] [cursor=pointer]:
+          - img [ref=e114]
+          - heading "设计一个拱桥，跨径 50 米" [level=3] [ref=e116]
+        - generic [ref=e117] [cursor=pointer]:
+          - img [ref=e119]
+          - heading "查看之前设计的桥梁参数" [level=3] [ref=e120]
+    - generic [ref=e122]:
+      - generic [ref=e124]:
+        - textbox [ref=e126]
+        - generic [ref=e127]:
+          - img [ref=e129]
+          - generic [ref=e132]:
+            - button [ref=e133] [cursor=pointer]:
+              - img [ref=e135]
+            - button [ref=e141] [cursor=pointer]:
+              - img [ref=e143]
+            - button [disabled] [ref=e147]:
+              - img [ref=e149]
+      - paragraph [ref=e151]:
+        - img [ref=e152]
+        - generic [ref=e154]: AI+BIM 将根据您的描述生成专业的桥梁模型
+```

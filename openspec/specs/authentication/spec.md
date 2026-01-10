@@ -135,6 +135,15 @@ TBD - created by archiving change implement-authentication. Update Purpose after
 - 那么 清除 localStorage 中的 Token
 - 那么 跳转到登录页
 
+#### Scenario: 主页用户状态显示
+- 给定 用户访问主页
+- 当 用户未登录时
+- 那么 侧边栏底部显示"登录"按钮
+- 并且 点击按钮跳转到登录页
+- 当 用户已登录时
+- 那么 侧边栏底部显示用户名和头像
+- 并且 点击后展开下拉菜单（个人资料、设置、退出登录）
+
 ### Requirement: 路由守卫
 
 系统 **MUST** 根据认证状态控制页面访问权限。
