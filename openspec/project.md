@@ -8,14 +8,32 @@
 - Enable intelligent 3D model processing and visualization workflows
 
 ## Tech Stack
-*TBD - To be determined based on project requirements*
-Potential technologies:
-- **Backend**: Python (for AI/ML), Node.js, or Go
-- **Frontend**: TypeScript, React, Three.js for 3D visualization
-- **Database**: PostgreSQL or MongoDB for metadata storage
-- **AI/ML**: PyTorch, TensorFlow, or similar frameworks
-- **3D Processing**: Open3D, IFC.js, or similar BIM libraries
-- **Rendering**: WebGL, Three.js, or server-side rendering solutions
+
+### Frontend
+- **框架**: Vue 3 + TypeScript
+- **构建工具**: Vite
+- **状态管理**: Pinia
+- **路由**: Vue Router 4
+- **UI 组件**: TDesign Vue Next
+- **AI 集成**: Vercel AI SDK (`ai`, `@ai-sdk/vue`)
+
+### Backend / Database
+- **认证**: Supabase Auth
+- **数据库**: Supabase PostgreSQL
+- **实时功能**: Supabase Realtime
+- **文件存储**: Supabase Storage
+- **API 层**: Vercel Functions (Edge Runtime)
+
+### 3D Visualization
+- **待定**: 正在评估 Three.js、Babylon.js、Autodesk Forge 等方案
+
+### 开发工具
+- **包管理**: pnpm
+- **代码规范**: ESLint + TypeScript
+- **规范管理**: OpenSpec (spec-driven development)
+- **部署**: Vercel
+
+> 📖 **完整的强制性技术标准请参阅**: [TECHNICAL_STANDARDS.md](./TECHNICAL_STANDARDS.md)
 
 ## Project Conventions
 

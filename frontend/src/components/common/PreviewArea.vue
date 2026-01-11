@@ -199,29 +199,76 @@ function getContentColor(type: string) {
 </template>
 
 <style scoped>
+/* ========================================
+   科技感玻璃态预览区域 - AI+BIM
+   ======================================== */
+
+/* 引入 Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+/* CSS 变量 - 科技感配色方案 */
 .preview-area {
+  --neon-blue: #3B82F6;
+  --neon-violet: #8B5CF6;
+  --neon-cyan: #06B6D4;
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.85);
+  --text-muted: rgba(255, 255, 255, 0.6);
+
   width: 60%;
   min-width: 500px;
   height: 100%;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-left: 1px solid rgba(59, 130, 246, 0.25);
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 5;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    -4px 0 32px rgba(0, 0, 0, 0.4),
+    inset 1px 0 0 rgba(255, 255, 255, 0.05);
 }
 
-/* 预览区域头部 */
+/* 预览区域左侧霓虹边框 */
+.preview-area::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(59, 130, 246, 0.6) 20%,
+    rgba(139, 92, 246, 0.6) 50%,
+    rgba(59, 130, 246, 0.6) 80%,
+    transparent 100%
+  );
+  opacity: 0.7;
+  animation: border-pulse-vertical 4s ease-in-out infinite;
+}
+
+@keyframes border-pulse-vertical {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+/* ========================================
+   科技感预览区域头部
+   ======================================== */
 .preview-header {
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -230,35 +277,104 @@ function getContentColor(type: string) {
 .preview-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 600;
-  color: #1e293b;
-  font-size: 16px;
+  color: var(--text-primary);
+  font-size: 17px;
+  text-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+}
+
+.preview-title :deep(.t-icon) {
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
 }
 
 .preview-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
-/* 内容列表 */
+/* 科技感按钮样式 */
+.preview-actions :deep(.t-button) {
+  color: var(--text-secondary) !important;
+  background: rgba(59, 130, 246, 0.1) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 10px !important;
+}
+
+.preview-actions :deep(.t-button:hover) {
+  color: var(--neon-cyan) !important;
+  background: rgba(6, 182, 212, 0.2) !important;
+  border-color: rgba(6, 182, 212, 0.4) !important;
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.4) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ========================================
+   科技感内容列表
+   ======================================== */
 .preview-content-list {
-  padding: 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  max-height: 200px;
+  padding: 18px;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+  max-height: 220px;
   overflow-y: auto;
+}
+
+/* 自定义滚动条 - 科技感 */
+.preview-content-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.preview-content-list::-webkit-scrollbar-track {
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 2px;
+}
+
+.preview-content-list::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 2px;
+}
+
+.preview-content-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.5);
 }
 
 .preview-content-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 12px;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 10px;
+  background: rgba(59, 130, 246, 0.06);
+  border: 1px solid rgba(59, 130, 246, 0.12);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 扫描线效果 */
+.preview-content-item::before {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(59, 130, 246, 0.1) 50%,
+    transparent 100%
+  );
+  transition: top 0.5s ease;
+  opacity: 0;
 }
 
 .preview-content-item:last-child {
@@ -266,23 +382,54 @@ function getContentColor(type: string) {
 }
 
 .preview-content-item:hover {
-  background: rgba(59, 130, 246, 0.08);
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.35);
+  transform: translateX(4px);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.25);
+}
+
+.preview-content-item:hover::before {
+  opacity: 1;
+  top: 100%;
 }
 
 .preview-content-item.active {
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: rgba(59, 130, 246, 0.25);
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow:
+    0 0 25px rgba(59, 130, 246, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* 活跃项左侧霓虹条 */
+.preview-content-item.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 25%;
+  bottom: 25%;
+  width: 3px;
+  background: linear-gradient(180deg, #3B82F6, #8B5CF6);
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.7);
 }
 
 .content-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.04);
+  background: rgba(59, 130, 246, 0.12);
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.content-icon :deep(.t-icon) {
+  filter: drop-shadow(0 0 8px currentColor);
 }
 
 .content-info {
@@ -291,9 +438,10 @@ function getContentColor(type: string) {
 }
 
 .content-title {
+  font-family: 'DM Sans', sans-serif;
   font-size: 14px;
   font-weight: 500;
-  color: #1e293b;
+  color: var(--text-primary);
   margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
@@ -302,17 +450,38 @@ function getContentColor(type: string) {
 
 .content-description {
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* 预览显示区域 */
+/* ========================================
+   科技感预览显示区域
+   ======================================== */
 .preview-display {
   flex: 1;
-  padding: 20px;
+  padding: 24px;
   overflow-y: auto;
+}
+
+/* 自定义滚动条 - 科技感 */
+.preview-display::-webkit-scrollbar {
+  width: 6px;
+}
+
+.preview-display::-webkit-scrollbar-track {
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 3px;
+}
+
+.preview-display::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 3px;
+}
+
+.preview-display::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.5);
 }
 
 .preview-display-content {
@@ -325,30 +494,38 @@ function getContentColor(type: string) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .display-title {
-  font-size: 16px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--text-primary);
   margin: 0;
   flex: 1;
+  text-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
 }
 
 .content-type-badge {
-  padding: 4px 8px;
-  border-radius: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
   color: white;
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
+  box-shadow:
+    0 0 15px currentColor,
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-/* 各种预览类型的占位符 */
+/* ========================================
+   科技感预览占位符
+   ======================================== */
 .pdf-preview,
 .image-preview,
 .web-preview {
@@ -362,24 +539,39 @@ function getContentColor(type: string) {
 .image-placeholder,
 .web-placeholder {
   text-align: center;
-  color: #64748b;
+  color: var(--text-secondary);
+  padding: 60px 40px;
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 20px;
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  backdrop-filter: blur(10px);
+}
+
+.pdf-placeholder :deep(.t-icon),
+.image-placeholder :deep(.t-icon),
+.web-placeholder :deep(.t-icon) {
+  filter: drop-shadow(0 0 20px currentColor);
+  margin-bottom: 8px;
 }
 
 .pdf-placeholder p,
 .image-placeholder p,
 .web-placeholder p {
-  margin: 16px 0 8px 0;
-  font-size: 14px;
-  color: #1e293b;
+  margin: 18px 0 10px 0;
+  font-size: 16px;
+  color: var(--text-primary);
+  font-weight: 500;
 }
 
 .hint {
-  font-size: 12px;
-  color: #94a3b8;
+  font-size: 13px;
+  color: var(--text-muted);
   margin: 0;
 }
 
-/* 空状态 */
+/* ========================================
+   科技感空状态
+   ======================================== */
 .preview-empty-state {
   height: 100%;
   display: flex;
@@ -387,43 +579,74 @@ function getContentColor(type: string) {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 40px 20px;
+  padding: 60px 40px;
 }
 
 .empty-icon {
-  margin-bottom: 24px;
-  opacity: 0.4;
+  margin-bottom: 28px;
+  opacity: 0.7;
+  filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.5));
+  animation: empty-float 3s ease-in-out infinite;
+}
+
+@keyframes empty-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .empty-title {
-  font-size: 18px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
   font-weight: 600;
-  color: #1e293b;
-  margin: 0 0 12px 0;
+  color: var(--text-primary);
+  margin: 0 0 14px 0;
+  text-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
 }
 
 .empty-description {
-  font-size: 14px;
-  color: #64748b;
-  margin: 0 0 32px 0;
-  line-height: 1.6;
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin: 0 0 36px 0;
+  line-height: 1.7;
 }
 
 .empty-hint {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .hint-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: #64748b;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text-muted);
+  background: rgba(59, 130, 246, 0.08);
+  padding: 12px 18px;
+  border-radius: 10px;
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
 }
 
-/* 响应式适配 */
+.hint-item:hover {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateX(4px);
+}
+
+.hint-item :deep(.t-icon) {
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
+}
+
+/* ========================================
+   科技感响应式适配
+   ======================================== */
 @media (max-width: 768px) {
   .preview-area {
     width: 100%;
@@ -432,15 +655,40 @@ function getContentColor(type: string) {
     right: 0;
     bottom: 0;
     z-index: 1000;
-    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+    box-shadow: -4px 0 30px rgba(0, 0, 0, 0.5);
   }
 
   .preview-content-list {
-    max-height: 150px;
+    max-height: 160px;
   }
 
   .preview-display {
-    padding: 16px;
+    padding: 18px;
+  }
+
+  .empty-title {
+    font-size: 18px;
+  }
+
+  .empty-description {
+    font-size: 14px;
+  }
+}
+
+/* ========================================
+   减少动画 - 可访问性
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+  .preview-area::before {
+    animation: none;
+  }
+
+  .empty-icon {
+    animation: none;
+  }
+
+  .preview-content-item::before {
+    animation: none;
   }
 }
 </style>
