@@ -18,17 +18,18 @@
 git clone <repository-url>
 cd bim-render-ai
 
-# 2. 进入前端目录
-cd frontend
-
-# 3. 安装依赖
+# 2. 安装依赖
+npm install
+# 或者使用 pnpm
 pnpm install
 
-# 4. 配置环境变量
+# 3. 配置环境变量
 cp .env.example .env.local
 # 编辑 .env.local，填入 Supabase 配置
 
-# 5. 启动开发服务器
+# 4. 启动开发服务器
+npm run dev
+# 或者使用 pnpm
 pnpm dev
 ```
 
@@ -73,27 +74,62 @@ bim-render-ai/
 ### 前端开发
 
 ```bash
-# 进入前端目录
-cd frontend
-
 # 安装依赖
+npm install
+# 或者使用 pnpm
 pnpm install
 
 # 启动开发服务器
+npm run dev
+# 或者使用 pnpm
 pnpm dev
 
 # 构建生产版本
+npm run build
+# 或者使用 pnpm
 pnpm build
 
+# 预览生产版本
+npm run preview
+# 或者使用 pnpm
+pnpm preview
+
 # 运行测试
+npm run test
+# 或者使用 pnpm
 pnpm test
 
-# 类型检查
+# 监视模式运行测试
+npm run test:watch
+# 或者使用 pnpm
+pnpm test --watch
+
+# 生成测试覆盖率报告
+npm run test:coverage
+# 或者使用 pnpm
+pnpm test --coverage
+
+# 代码检查
+npm run lint
+# 或者使用 pnpm
 pnpm lint
 
 # 代码格式化
+npm run format
+# 或者使用 pnpm
 pnpm format
 ```
+
+### 命令说明
+
+- **`npm run dev` / `pnpm dev`**: 启动开发服务器，端口5173，支持热重载和快速调试
+- **`npm run build` / `pnpm build`**: 构建生产版本，生成优化后的静态文件
+- **`npm run preview` / `pnpm preview`**: 预览生产构建结果，测试构建后的应用
+- **`npm run test` / `pnpm test`**: 运行单元测试和集成测试
+- **`npm run test:watch` / `pnpm test --watch`**: 监视模式运行测试，代码变化时自动重新测试
+- **`npm run test:coverage` / `pnpm test --coverage`**: 生成测试覆盖率报告
+- **`npm run lint` / `pnpm lint`**: 代码质量检查，自动修复可修复的问题
+- **`npm run format` / `pnpm format`**: 代码格式化，统一代码风格
 
 ### 数据库操作
 
