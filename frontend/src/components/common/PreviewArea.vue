@@ -200,11 +200,12 @@ function getContentColor(type: string) {
 
 <style scoped>
 .preview-area {
-  width: 400px;
+  width: 60%;
+  min-width: 500px;
   height: 100%;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
-  border-left: 1px solid rgba(0, 0, 0, 0.08);
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
   position: relative;

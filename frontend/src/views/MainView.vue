@@ -1266,23 +1266,25 @@ function handleFileSelect(event: Event) {
 
 /* 聊天区输入区域 */
 .chat-area .input-section {
-  padding: 20px 40px 24px 40px;
+  padding: 28px 40px 32px 40px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-top: 1px solid rgba(0, 0, 0, 0.05);
   position: relative;
   z-index: 1;
   flex-shrink: 0;
-  margin: 0 20px 20px 20px;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  max-width: 1000px;
+  margin: 0 20px 28px 20px;
+  border-radius: 24px;
+  box-shadow: 0 8px 36px rgba(0, 0, 0, 0.12);
+  width: 100%;
+  max-width: none;
   margin-left: auto;
   margin-right: auto;
 }
 
 .chat-sender-container {
-  max-width: 1200px;
+  width: 100%;
+  max-width: none;
   margin: 0 auto;
   position: relative;
 }
@@ -1300,56 +1302,64 @@ function handleFileSelect(event: Event) {
 
 /* 聊天区的ChatSender容器样式 */
 .chat-area .chat-sender-container {
-  max-width: 1200px;
+  width: 100%;
+  max-width: none;
   margin: 0 auto;
   position: relative;
 }
 
 /* ChatSender 样式优化 */
 :deep(.t-chat-sender) {
-  border-radius: 12px !important;
-  border: 2px solid #e2e8f0 !important;
+  border-radius: 20px !important;
+  border: 3px solid #e2e8f0 !important;
   background: white !important;
   transition: all 0.3s ease !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
   overflow: hidden;
+  min-height: 80px !important;
+  padding: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
 }
 
 :deep(.t-chat-sender:hover) {
   border-color: #3B82F6 !important;
-  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.1) !important;
+  box-shadow: 0 6px 28px rgba(59, 130, 246, 0.15) !important;
+  transform: translateY(-1px) !important;
 }
 
 :deep(.t-chat-sender--focused) {
   border-color: #3B82F6 !important;
-  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.1) !important;
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2) !important;
+  transform: translateY(-1px) !important;
 }
 
 :deep(.t-chat-sender__input) {
-  padding: 12px 16px !important;
-  font-size: 16px !important;
-  line-height: 1.5 !important;
-  min-height: 40px !important;
-  max-height: 56px !important;
+  padding: 20px 24px !important;
+  font-size: 17px !important;
+  line-height: 1.7 !important;
+  min-height: 56px !important;
+  max-height: 100px !important;
   flex-shrink: 1;
+  border-radius: 0 !important;
 }
 
 :deep(.t-chat-sender__prefix) {
-  margin-left: 16px !important;
-  margin-right: 8px !important;
+  margin-left: 20px !important;
+  margin-right: 12px !important;
 }
 
 :deep(.t-chat-sender__suffix) {
-  margin-right: 16px !important;
-  margin-left: 8px !important;
+  margin-right: 20px !important;
+  margin-left: 12px !important;
 }
 
 /* 操作按钮区域 */
 .chat-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 16px 8px 0;
+  gap: 8px;
+  padding: 0 20px 12px 0;
   flex-shrink: 0;
 }
 
@@ -1357,11 +1367,12 @@ function handleFileSelect(event: Event) {
 :deep(.upload-btn) {
   color: #94a3b8 !important;
   transition: all 0.2s ease !important;
-  height: 36px !important;
-  width: 36px !important;
+  height: 48px !important;
+  width: 48px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  border-radius: 12px !important;
 }
 
 :deep(.upload-btn:hover) {
@@ -1377,13 +1388,14 @@ function handleFileSelect(event: Event) {
 :deep(.send-btn) {
   background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
   border: none !important;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3) !important;
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  height: 36px !important;
-  min-width: 44px !important;
+  height: 48px !important;
+  min-width: 56px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  border-radius: 14px !important;
 }
 
 :deep(.send-btn:hover:not(:disabled)) {
@@ -1399,7 +1411,7 @@ function handleFileSelect(event: Event) {
 .input-icon {
   color: #94a3b8;
   transition: color 0.2s ease;
-  font-size: 20px;
+  font-size: 24px;
 }
 
 :deep(.t-chat-sender--focused) .input-icon {
@@ -1417,10 +1429,12 @@ function handleFileSelect(event: Event) {
 .input-hint {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: 8px;
+  font-size: 14px;
   color: #64748b;
   white-space: nowrap;
+  margin-top: 12px;
+  padding: 0 4px;
 }
 
 :deep(.t-icon--loading) {
@@ -1462,37 +1476,43 @@ function handleFileSelect(event: Event) {
   }
 
   .input-hint {
-    font-size: 12px;
-    margin: 8px 0 0 0;
+    font-size: 13px;
+    margin: 10px 0 0 0;
   }
 
   :deep(.t-chat-sender__input) {
-    padding: 10px 14px !important;
+    padding: 12px 16px !important;
     font-size: 15px !important;
-    min-height: 36px !important;
-    max-height: 36px !important;
+    min-height: 42px !important;
+    max-height: 60px !important;
   }
 
   :deep(.t-chat-sender__prefix) {
-    margin-left: 12px !important;
-    margin-right: 6px !important;
+    margin-left: 16px !important;
+    margin-right: 8px !important;
   }
 
   .chat-actions {
-    gap: 4px;
-    padding: 0 12px 6px 0;
+    gap: 6px;
+    padding: 0 16px 8px 0;
   }
 
   :deep(.send-btn) {
     padding: 8px 12px !important;
-    min-width: 40px !important;
-    height: 32px !important;
+    min-width: 44px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
   }
 
   :deep(.upload-btn) {
     padding: 8px !important;
-    height: 32px !important;
-    width: 32px !important;
+    height: 36px !important;
+    width: 36px !important;
+    border-radius: 8px !important;
+  }
+
+  .input-icon {
+    font-size: 20px;
   }
 }
 
@@ -1961,15 +1981,16 @@ function handleFileSelect(event: Event) {
 }
 
 .chat-area {
-  flex: 1;
+  flex: 0 0 40%;
+  max-width: 40%;
   display: flex;
   flex-direction: column;
   min-width: 0; /* 防止flex子元素溢出 */
-  order: 1; /* 确保聊天区域在左侧 */
+  order: 2; /* 聊天区域在右侧 */
 }
 
 .preview-area {
-  order: 2; /* 确保预览区域在右侧 */
+  order: 1; /* 预览区域在左侧（中间位置） */
   flex-shrink: 0; /* 防止预览区域被压缩 */
 }
 
@@ -2007,29 +2028,100 @@ function handleFileSelect(event: Event) {
 
 /* 调整三栏布局的输入区域样式 */
 .chat-and-preview-layout .input-section {
-  margin: 0 20px 20px 20px;
+  margin: 0 auto 28px auto;
   display: flex;
   justify-content: center;
   align-items: center;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  max-width: 1000px;
-  margin-left: auto;
-  margin-right: auto;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 8px 36px rgba(0, 0, 0, 0.12);
+  width: 80%;
+  max-width: 800px;
+  min-width: 300px;
 }
 
 .chat-and-preview-layout .chat-sender-container {
   margin: 0 auto;
-  max-width: 1200px;
   width: 100%;
 }
 
 /* 侧边栏收缩状态的样式优化 */
 .sidebar.collapsed {
   width: 56px !important;
+}
+
+.sidebar.collapsed .sidebar-header {
+  justify-content: center !important;
+  padding: 16px 8px !important;
+}
+
+.sidebar.collapsed .logo-container {
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+.sidebar.collapsed .logo-icon {
+  margin: 0 auto !important;
+}
+
+.sidebar.collapsed .new-chat-button {
+  padding: 12px 8px !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.sidebar.collapsed .new-chat-btn {
+  justify-content: center !important;
+  padding: 0 !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  border-radius: 10px !important;
+}
+
+.sidebar.collapsed .conversation-list {
+  padding: 8px !important;
+}
+
+.sidebar.collapsed .conversation-item {
+  justify-content: center !important;
+  padding: 0 !important;
+  width: 40px !important;
+  height: 40px !important;
+  margin: 0 auto 8px auto !important;
+  border-radius: 10px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  transition: all 0.2s ease !important;
+}
+
+.sidebar.collapsed .conversation-item:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.sidebar.collapsed .conversation-item .conversation-icon {
+  margin: 0 !important;
+}
+
+.sidebar.collapsed .user-section {
+  padding: 12px 8px !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.sidebar.collapsed .user-section .t-button {
+  justify-content: center !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  padding: 0 !important;
+  border-radius: 10px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.sidebar.collapsed .user-section .t-button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
 }
 
 /* 预览区域显示时的布局调整 */
