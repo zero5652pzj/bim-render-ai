@@ -71,16 +71,36 @@ export const useConversationStore = defineStore('conversation', () => {
     }
   }
 
-  // 删除会话（软删除）
+  // 删除会话（软删除）- 同时删除相关消息
   async function deleteConversation(id: string): Promise<boolean> {
     isDeleting.value = true
     try {
-      const { error } = await supabase
+      // 验证会话属于当前用户
+      const authStore = useAuthStore()
+      const conversation = conversations.value.find(c => c.id === id)
+      if (!conversation || conversation.user_id !== authStore.user?.id) {
+        console.error('[ConversationStore] 会话不存在或无权限：', id)
+        return false
+      }
+
+      // 先删除会话的所有消息
+      const { error: messagesError } = await supabase
+        .from('messages')
+        .update({ is_deleted: true })
+        .eq('conversation_id', id)
+
+      if (messagesError) {
+        console.error('[ConversationStore] 删除消息失败：', messagesError)
+        return false
+      }
+
+      // 再删除会话
+      const { error: conversationError } = await supabase
         .from('conversations')
         .update({ is_deleted: true })
         .eq('id', id)
 
-      if (!error) {
+      if (!conversationError) {
         conversations.value = conversations.value.filter(c => c.id !== id)
         if (currentConversation.value?.id === id) {
           currentConversation.value = null
@@ -88,7 +108,7 @@ export const useConversationStore = defineStore('conversation', () => {
         console.log('[ConversationStore] 会话删除成功：', id)
         return true
       } else {
-        console.error('[ConversationStore] 会话删除失败：', error)
+        console.error('[ConversationStore] 会话删除失败：', conversationError)
         return false
       }
     } catch (err) {

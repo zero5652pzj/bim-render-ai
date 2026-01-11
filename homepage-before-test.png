@@ -1,0 +1,20 @@
+uid=1_0 RootWebArea "AI+BIM 建模助手" url="http://localhost:4175/"
+  uid=1_1 complementary
+    uid=1_2 heading "AI+BIM" level="2"
+    uid=1_3 button
+    uid=1_4 button "新建对话"
+    uid=1_5 StaticText "暂无对话"
+    uid=1_6 StaticText "开始你的第一次对话吧"
+    uid=1_7 button "登录"
+  uid=1_8 main
+    uid=1_9 heading "你好！我是 AI+BIM 助手" level="1"
+    uid=1_10 StaticText "我可以帮助你设计和生成各种类型的桥梁模型"
+    uid=1_11 heading "生成一座 100 米的简支梁桥" level="3"
+    uid=1_12 heading "创建三跨连续梁桥，每跨 30 米" level="3"
+    uid=1_13 heading "设计一个拱桥，跨径 50 米" level="3"
+    uid=1_14 heading "查看之前设计的桥梁参数" level="3"
+    uid=1_15 textbox multiline
+    uid=1_16 button
+    uid=1_17 button
+    uid=1_18 button disableable disabled
+    uid=1_19 StaticText "AI+BIM 将根据您的描述生成专业的桥梁模型"
