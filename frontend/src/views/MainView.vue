@@ -8,6 +8,7 @@ import { useMessageStore } from '@/stores/message'
 import UserMenu from '@/components/common/UserMenu.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import ClearHistoryDialog from '@/components/ClearHistoryDialog.vue'
+import PreviewArea from '@/components/common/PreviewArea.vue'
 import { ChatSender } from '@tdesign-vue-next/chat'
 import { chatWithMinimax } from '@/lib/minimax-api'
 import { supabase } from '@/lib/supabase'
@@ -17,6 +18,35 @@ const conversationStore = useConversationStore()
 const messageStore = useMessageStore()
 const router = useRouter()
 const sidebarCollapsed = ref(false)
+
+// 预览区域状态
+const previewAreaVisible = ref(false)
+const previewAreaCollapsed = ref(false)
+
+// 预览内容状态
+const previewContent = ref([
+  {
+    id: 1,
+    type: 'pdf',
+    title: '桥梁设计规范.pdf',
+    description: '最新的桥梁设计规范文档'
+  },
+  {
+    id: 2,
+    type: 'image',
+    title: '桥墩结构图.jpg',
+    description: '桥墩的详细结构示意图'
+  },
+  {
+    id: 3,
+    type: 'web',
+    title: 'BIM标准网站',
+    description: 'BIM行业标准参考网站'
+  }
+])
+
+// 当前选中的预览内容
+const selectedPreviewContent = ref(previewContent.value[0])
 
 // 输入相关状态
 const message = ref('')
@@ -58,16 +88,41 @@ function stopAiTyping() {
 // 切换侧边栏
 function toggleSidebar() {
   sidebarCollapsed.value = !sidebarCollapsed.value
+  // 如果侧边栏展开且当前有对话，可以选择性地隐藏预览区域以获得更多空间
+  if (!sidebarCollapsed.value && hasCurrentConversation.value) {
+    // 用户展开侧边栏时，可以保持预览区域显示，给用户选择权
+    // 不自动隐藏预览区域，让用户决定
+  }
 }
+
+// 切换预览区域
+function togglePreviewArea() {
+  previewAreaCollapsed.value = !previewAreaCollapsed.value
+}
+
+// 获取聊天消息
+const chatMessages = computed(() => messageStore.messages)
+
+// 预览区域显示逻辑
+const shouldShowPreviewArea = computed(() => {
+  return hasCurrentConversation.value && previewAreaVisible.value && !previewAreaCollapsed.value
+})
+
+// 预览区域总是显示的（默认展开）
+const isPreviewAreaExpanded = computed(() => {
+  return hasCurrentConversation.value && !previewAreaCollapsed.value
+})
+
+// 是否显示聊天区域
+const shouldShowChatArea = computed(() => {
+  return hasCurrentConversation.value
+})
 
 // 检查用户是否已登录
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 
 // 检查是否有当前会话
 const hasCurrentConversation = computed(() => !!conversationStore.currentConversation)
-
-// 获取聊天消息
-const chatMessages = computed(() => messageStore.messages)
 
 // 组件挂载时初始化
 onMounted(async () => {
@@ -82,12 +137,17 @@ watch(
   async (conversationId) => {
     if (conversationId) {
       await messageStore.loadMessages(conversationId)
+      // 显示预览区域并收缩侧边栏
+      previewAreaVisible.value = true
+      sidebarCollapsed.value = true
       // 滚动到底部
       setTimeout(() => {
         scrollToBottom()
       }, 100)
     } else {
       messageStore.clearMessages()
+      // 隐藏预览区域
+      previewAreaVisible.value = false
     }
   },
   { immediate: true }
@@ -111,6 +171,11 @@ async function handleNewConversation() {
   // 清空当前会话
   conversationStore.selectConversation(null as any)
   messageStore.clearMessages()
+
+  // 重置布局状态：显示主页，侧边栏展开，预览区域隐藏
+  sidebarCollapsed.value = false
+  previewAreaVisible.value = false
+  previewAreaCollapsed.value = false
 }
 
 // 处理选择会话
@@ -425,217 +490,300 @@ function handleFileSelect(event: Event) {
     <!-- 主内容区 -->
     <main class="main-content">
       <!-- 欢迎页（没有当前会话时显示） -->
-      <div v-if="!hasCurrentConversation" class="welcome-section">
-        <div class="welcome-card">
-          <!-- 主标题区域 -->
-          <div class="welcome-header">
-            <div class="hero-icon">
-              <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="heroGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
-                  </linearGradient>
-                </defs>
-                <circle cx="50" cy="50" r="45" fill="url(#heroGradient)" opacity="0.1"/>
-                <path d="M50 20 L75 35 L75 65 L50 80 L25 65 L25 35 Z" fill="url(#heroGradient)"/>
-                <circle cx="50" cy="50" r="18" fill="white"/>
-                <path d="M35 50 L45 60 L65 40" stroke="url(#heroGradient)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <div v-if="!hasCurrentConversation" class="welcome-page">
+        <!-- 主标题区域 -->
+        <div class="welcome-header">
+          <div class="hero-icon">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="heroGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                </linearGradient>
+              </defs>
+              <circle cx="50" cy="50" r="45" fill="url(#heroGradient)" opacity="0.1"/>
+              <path d="M50 20 L75 35 L75 65 L50 80 L25 65 L25 35 Z" fill="url(#heroGradient)"/>
+              <circle cx="50" cy="50" r="18" fill="white"/>
+              <path d="M35 50 L45 60 L65 40" stroke="url(#heroGradient)" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h1 class="welcome-title">
+            你好！我是 <span class="gradient-text">AI+BIM</span> 助手
+          </h1>
+          <p class="welcome-subtitle">我可以帮助你设计和生成各种类型的桥梁模型</p>
+        </div>
+
+        <!-- 示例卡片 -->
+        <div class="example-cards">
+          <div class="example-card" @click="() => { message = '生成一座 100 米的简支梁桥'; handleSend('生成一座 100 米的简支梁桥'); }">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="3" y="3" width="7" height="7" stroke-width="1.5"/>
+                <rect x="14" y="3" width="7" height="7" stroke-width="1.5"/>
+                <rect x="14" y="14" width="7" height="7" stroke-width="1.5"/>
+                <rect x="3" y="14" width="7" height="7" stroke-width="1.5"/>
               </svg>
             </div>
-            <h1 class="welcome-title">
-              你好！我是 <span class="gradient-text">AI+BIM</span> 助手
-            </h1>
-            <p class="welcome-subtitle">我可以帮助你设计和生成各种类型的桥梁模型</p>
+            <h3>生成一座 100 米的简支梁桥</h3>
           </div>
-
-          <!-- 示例卡片 -->
-          <div class="example-cards">
-            <div class="example-card" @click="() => { message = '生成一座 100 米的简支梁桥'; handleSend('生成一座 100 米的简支梁桥'); }">
-              <div class="card-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <rect x="3" y="3" width="7" height="7" stroke-width="1.5"/>
-                  <rect x="14" y="3" width="7" height="7" stroke-width="1.5"/>
-                  <rect x="14" y="14" width="7" height="7" stroke-width="1.5"/>
-                  <rect x="3" y="14" width="7" height="7" stroke-width="1.5"/>
-                </svg>
-              </div>
-              <h3>生成一座 100 米的简支梁桥</h3>
+          <div class="example-card" @click="() => { message = '创建三跨连续梁桥，每跨 30 米'; handleSend('创建三跨连续梁桥，每跨 30 米'); }">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M3 12 L21 12" stroke-width="1.5"/>
+                <path d="M6 12 L10 8 L14 16 L18 12" stroke-width="1.5"/>
+              </svg>
             </div>
-            <div class="example-card" @click="() => { message = '创建三跨连续梁桥，每跨 30 米'; handleSend('创建三跨连续梁桥，每跨 30 米'); }">
-              <div class="card-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M3 12 L21 12" stroke-width="1.5"/>
-                  <path d="M6 12 L10 8 L14 16 L18 12" stroke-width="1.5"/>
-                </svg>
-              </div>
-              <h3>创建三跨连续梁桥，每跨 30 米</h3>
+            <h3>创建三跨连续梁桥，每跨 30 米</h3>
+          </div>
+          <div class="example-card" @click="() => { message = '设计一个拱桥，跨径 50 米'; handleSend('设计一个拱桥，跨径 50 米'); }">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M3 15 Q12 3 21 15" stroke-width="1.5"/>
+                <path d="M7 15 L17 15" stroke-width="1.5"/>
+              </svg>
             </div>
-            <div class="example-card" @click="() => { message = '设计一个拱桥，跨径 50 米'; handleSend('设计一个拱桥，跨径 50 米'); }">
-              <div class="card-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M3 15 Q12 3 21 15" stroke-width="1.5"/>
-                  <path d="M7 15 L17 15" stroke-width="1.5"/>
-                </svg>
-              </div>
-              <h3>设计一个拱桥，跨径 50 米</h3>
+            <h3>设计一个拱桥，跨径 50 米</h3>
+          </div>
+          <div class="example-card" @click="() => { message = '查看之前设计的桥梁参数'; handleSend('查看之前设计的桥梁参数'); }">
+            <div class="card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M9 5 L9 19" stroke-width="1.5"/>
+                <path d="M15 5 L15 19" stroke-width="1.5"/>
+                <path d="M5 12 L19 12" stroke-width="1.5"/>
+              </svg>
             </div>
-            <div class="example-card" @click="() => { message = '查看之前设计的桥梁参数'; handleSend('查看之前设计的桥梁参数'); }">
-              <div class="card-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M9 5 L9 19" stroke-width="1.5"/>
-                  <path d="M15 5 L15 19" stroke-width="1.5"/>
-                  <path d="M5 12 L19 12" stroke-width="1.5"/>
-                </svg>
-              </div>
-              <h3>查看之前设计的桥梁参数</h3>
-            </div>
+            <h3>查看之前设计的桥梁参数</h3>
           </div>
         </div>
-      </div>
 
-      <!-- 聊天界面（有当前会话时显示） -->
-      <div v-else class="chat-section">
-        <!-- 聊天记录区域 -->
-        <div ref="chatContainerRef" class="chat-container">
-          <div class="chat-messages">
-            <div
-              v-for="msg in chatMessages"
-              :key="msg.id"
-              class="message-item"
-              :class="msg.role === 'user' ? 'message-user' : 'message-ai'"
+        <!-- 主页聊天输入框（在示例卡片下方，靠近底部） -->
+        <div class="input-section">
+          <div class="chat-sender-container">
+            <ChatSender
+              v-model="message"
+              :disabled="sending || aiResponding"
+              :loading="sending || aiResponding"
+              placeholder="描述您想要的桥梁模型..."
+              :maxlength="1000"
+              :show-limit="true"
+              :auto-size="{ minRows: 1, maxRows: 4 }"
+              @enter="handleSend"
+              @send="handleSend"
+              @file-upload="handleFileUpload"
             >
-              <div class="message-avatar">
-                <div v-if="msg.role === 'user'" class="user-avatar">
-                  {{ authStore.user?.email?.charAt(0).toUpperCase() }}
-                </div>
-                <div v-else class="ai-avatar">
-                  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                      <linearGradient id="aiGradient-msg" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
-                      </linearGradient>
-                    </defs>
-                    <path d="M50 20 L75 35 L75 65 L50 80 L25 65 L25 35 Z" fill="url(#aiGradient-msg)"/>
-                    <circle cx="50" cy="50" r="12" fill="white"/>
-                  </svg>
-                </div>
-              </div>
-              <div class="message-content-wrapper">
-                <div class="message-content">
-                  <div class="message-text" v-html="msg.content.replace(/\n/g, '<br>')"></div>
-                  <div class="message-time">{{ new Date(msg.created_at).toLocaleTimeString() }}</div>
-                </div>
-                <!-- 消息删除按钮 -->
-                <button
-                  class="delete-message-btn"
-                  @click="handleDeleteMessage(msg.id)"
-                  :disabled="messageStore.isDeletingMessage"
-                  :loading="messageStore.isDeletingMessage"
-                  title="删除消息"
-                >
-                  <TIcon name="delete" size="14px" />
-                </button>
-              </div>
-            </div>
+              <!-- 左侧图标 -->
+              <template #prefix>
+                <TIcon name="edit" class="input-icon" />
+              </template>
 
-            <!-- AI 打字动画 -->
-            <div v-if="aiResponding" class="message-item message-ai">
-              <div class="message-avatar">
-                <div class="ai-avatar">
-                  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                      <linearGradient id="aiGradient-typing" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
-                      </linearGradient>
-                    </defs>
-                    <path d="M50 20 L75 35 L75 65 L50 80 L25 65 L25 35 Z" fill="url(#aiGradient-typing)"/>
-                    <circle cx="50" cy="50" r="12" fill="white"/>
-                  </svg>
+              <!-- 右侧操作区域 -->
+              <template #actions>
+                <div class="chat-actions">
+                  <!-- 文件上传按钮 -->
+                  <TButton
+                    variant="text"
+                    size="small"
+                    :disabled="sending"
+                    @click="triggerFileUpload"
+                    class="upload-btn"
+                  >
+                    <template #icon>
+                      <TIcon name="attach" />
+                    </template>
+                  </TButton>
+
+                  <!-- 发送按钮 -->
+                  <TButton
+                    theme="primary"
+                    size="small"
+                    :disabled="!message.trim() || sending || aiResponding"
+                    :loading="sending || aiResponding"
+                    @click="handleSend(message)"
+                    class="send-btn"
+                  >
+                    <template #icon>
+                      <TIcon name="send" />
+                    </template>
+                  </TButton>
                 </div>
-              </div>
-              <div class="message-content ai-typing">
-                <div class="typing-dots">
-                  AI 正在思考<span class="dots">{{ aiTypingDots }}</span>
-                </div>
-              </div>
-            </div>
+              </template>
+            </ChatSender>
+
+            <!-- 底部提示信息 -->
+            <p class="input-hint">
+              <TIcon :name="aiResponding ? 'loading' : 'info-circle'" size="14px" />
+              <span v-if="aiResponding">AI 正在思考，请稍候...</span>
+              <span v-else>AI+BIM 将根据您的描述生成专业的桥梁模型</span>
+            </p>
+
+            <!-- 隐藏的文件输入 -->
+            <input
+              ref="fileInput"
+              type="file"
+              accept="image/*,.pdf,.doc,.docx,.dwg,.rvt"
+              multiple
+              style="display: none"
+              @change="handleFileSelect"
+            />
           </div>
         </div>
       </div>
 
-      <!-- 智能输入区域 -->
-      <div class="input-section">
-        <div class="chat-sender-container">
-          <ChatSender
-            v-model="message"
-            :disabled="sending || aiResponding"
-            :loading="sending || aiResponding"
-            placeholder="描述您想要的桥梁模型..."
-            :maxlength="1000"
-            :show-limit="true"
-            :auto-size="{ minRows: 1, maxRows: 4 }"
-            @enter="handleSend"
-            @send="handleSend"
-            @file-upload="handleFileUpload"
-          >
-            <!-- 左侧图标 -->
-            <template #prefix>
-              <TIcon name="edit" class="input-icon" />
-            </template>
-
-            <!-- 右侧操作区域 -->
-            <template #actions>
-              <div class="chat-actions">
-                <!-- 文件上传按钮 -->
-                <TButton
-                  variant="text"
-                  size="small"
-                  :disabled="sending"
-                  @click="triggerFileUpload"
-                  class="upload-btn"
-                >
-                  <template #icon>
-                    <TIcon name="attach" />
-                  </template>
-                </TButton>
-
-                <!-- 发送按钮 -->
-                <TButton
-                  theme="primary"
-                  size="small"
-                  :disabled="!message.trim() || sending || aiResponding"
-                  :loading="sending || aiResponding"
-                  @click="handleSend(message)"
-                  class="send-btn"
-                >
-                  <template #icon>
-                    <TIcon name="send" />
-                  </template>
-                </TButton>
+      <!-- 聊天和预览区域（有三栏布局） -->
+      <div v-else class="chat-and-preview-layout">
+        <!-- 聊天区域和输入区域 -->
+        <div class="chat-area">
+          <!-- 聊天记录区域 -->
+          <div ref="chatContainerRef" class="chat-container">
+            <div class="chat-messages">
+              <div
+                v-for="msg in chatMessages"
+                :key="msg.id"
+                class="message-item"
+                :class="msg.role === 'user' ? 'message-user' : 'message-ai'"
+              >
+                <div class="message-avatar">
+                  <div v-if="msg.role === 'user'" class="user-avatar">
+                    {{ authStore.user?.email?.charAt(0).toUpperCase() }}
+                  </div>
+                  <div v-else class="ai-avatar">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <linearGradient id="aiGradient-msg" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+                          <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M50 20 L75 35 L75 65 L50 80 L25 65 L25 35 Z" fill="url(#aiGradient-msg)"/>
+                      <circle cx="50" cy="50" r="12" fill="white"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="message-content-wrapper">
+                  <div class="message-content">
+                    <div class="message-text" v-html="msg.content.replace(/\n/g, '<br>')"></div>
+                    <div class="message-time">{{ new Date(msg.created_at).toLocaleTimeString() }}</div>
+                  </div>
+                  <!-- 消息删除按钮 -->
+                  <button
+                    class="delete-message-btn"
+                    @click="handleDeleteMessage(msg.id)"
+                    :disabled="messageStore.isDeletingMessage"
+                    :loading="messageStore.isDeletingMessage"
+                    title="删除消息"
+                  >
+                    <TIcon name="delete" size="14px" />
+                  </button>
+                </div>
               </div>
-            </template>
-          </ChatSender>
 
-          <!-- 底部提示信息 -->
-          <p class="input-hint">
-            <TIcon :name="aiResponding ? 'loading' : 'info-circle'" size="14px" />
-            <span v-if="aiResponding">AI 正在思考，请稍候...</span>
-            <span v-else>AI+BIM 将根据您的描述生成专业的桥梁模型</span>
-          </p>
+              <!-- AI 打字动画 -->
+              <div v-if="aiResponding" class="message-item message-ai">
+                <div class="message-avatar">
+                  <div class="ai-avatar">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <linearGradient id="aiGradient-typing" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+                          <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M50 20 L75 35 L75 65 L50 80 L25 65 L25 35 Z" fill="url(#aiGradient-typing)"/>
+                      <circle cx="50" cy="50" r="12" fill="white"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="message-content ai-typing">
+                  <div class="typing-dots">
+                    AI 正在思考<span class="dots">{{ aiTypingDots }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-          <!-- 隐藏的文件输入 -->
-          <input
-            ref="fileInput"
-            type="file"
-            accept="image/*,.pdf,.doc,.docx,.dwg,.rvt"
-            multiple
-            style="display: none"
-            @change="handleFileSelect"
-          />
+          <!-- 智能输入区域 -->
+          <div class="input-section">
+            <div class="chat-sender-container">
+              <ChatSender
+                v-model="message"
+                :disabled="sending || aiResponding"
+                :loading="sending || aiResponding"
+                placeholder="描述您想要的桥梁模型..."
+                :maxlength="1000"
+                :show-limit="true"
+                :auto-size="{ minRows: 1, maxRows: 4 }"
+                @enter="handleSend"
+                @send="handleSend"
+                @file-upload="handleFileUpload"
+              >
+                <!-- 左侧图标 -->
+                <template #prefix>
+                  <TIcon name="edit" class="input-icon" />
+                </template>
+
+                <!-- 右侧操作区域 -->
+                <template #actions>
+                  <div class="chat-actions">
+                    <!-- 文件上传按钮 -->
+                    <TButton
+                      variant="text"
+                      size="small"
+                      :disabled="sending"
+                      @click="triggerFileUpload"
+                      class="upload-btn"
+                    >
+                      <template #icon>
+                        <TIcon name="attach" />
+                      </template>
+                    </TButton>
+
+                    <!-- 发送按钮 -->
+                    <TButton
+                      theme="primary"
+                      size="small"
+                      :disabled="!message.trim() || sending || aiResponding"
+                      :loading="sending || aiResponding"
+                      @click="handleSend(message)"
+                      class="send-btn"
+                    >
+                      <template #icon>
+                        <TIcon name="send" />
+                      </template>
+                    </TButton>
+                  </div>
+                </template>
+              </ChatSender>
+
+              <!-- 底部提示信息 -->
+              <p class="input-hint">
+                <TIcon :name="aiResponding ? 'loading' : 'info-circle'" size="14px" />
+                <span v-if="aiResponding">AI 正在思考，请稍候...</span>
+                <span v-else>AI+BIM 将根据您的描述生成专业的桥梁模型</span>
+              </p>
+
+              <!-- 隐藏的文件输入 -->
+              <input
+                ref="fileInput"
+                type="file"
+                accept="image/*,.pdf,.doc,.docx,.dwg,.rvt"
+                multiple
+                style="display: none"
+                @change="handleFileSelect"
+              />
+            </div>
+          </div>
         </div>
+
+        <!-- 预览区域 -->
+        <PreviewArea
+          v-if="isPreviewAreaExpanded"
+          :visible="isPreviewAreaExpanded"
+          :collapsed="previewAreaCollapsed"
+          :content="previewContent"
+          @toggle="togglePreviewArea"
+          @close="previewAreaVisible = false"
+        />
       </div>
     </main>
 
@@ -963,27 +1111,23 @@ function handleFileSelect(event: Event) {
   padding: 0 0 20px 0;
 }
 
-/* 欢迎区域 */
-.welcome-section {
+/* 欢迎页面布局 */
+.welcome-page {
   flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 40px 80px 40px;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px 20px 20px 20px;
+  min-height: 100vh;
   position: relative;
   z-index: 1;
 }
 
-.welcome-card {
-  text-align: center;
-  max-width: 800px;
-  width: 100%;
-  animation: fade-in-up 0.8s ease-out;
-}
-
+/* 主标题区域 */
 .welcome-header {
-  margin-bottom: 60px;
-  animation: fade-in-up 0.8s ease-out 0.2s backwards;
+  text-align: center;
+  animation: fade-in-up 0.8s ease-out;
+  margin-bottom: 40px;
 }
 
 .hero-icon {
@@ -1032,7 +1176,8 @@ function handleFileSelect(event: Event) {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
-  margin-bottom: 60px;
+  max-width: 800px;
+  margin: 0 auto 40px auto;
   animation: fade-in-up 0.8s ease-out 0.4s backwards;
 }
 
@@ -1108,8 +1253,19 @@ function handleFileSelect(event: Event) {
   z-index: 1;
 }
 
-/* 智能输入区域 */
-.input-section {
+/* 主页输入区域 - 在示例卡片下方 */
+.welcome-page .input-section {
+  max-width: 1000px;
+  margin: 0 auto 20px auto;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* 聊天区输入区域 */
+.chat-area .input-section {
   padding: 20px 40px 24px 40px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
@@ -1120,10 +1276,31 @@ function handleFileSelect(event: Event) {
   margin: 0 20px 20px 20px;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .chat-sender-container {
-  max-width: 900px;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* 主页的ChatSender容器样式 */
+.welcome-page .chat-sender-container {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 16px;
+  margin: 0 auto;
+}
+
+/* 聊天区的ChatSender容器样式 */
+.chat-area .chat-sender-container {
+  max-width: 1200px;
   margin: 0 auto;
   position: relative;
 }
@@ -1265,7 +1442,21 @@ function handleFileSelect(event: Event) {
     padding: 0 0 16px 0;
   }
 
-  .input-section {
+  /* 主页响应式 */
+  .welcome-page {
+    padding: 20px 16px 16px 16px;
+  }
+
+  .welcome-page .input-section {
+    margin-bottom: 16px;
+  }
+
+  .welcome-page .chat-sender-container {
+    border-radius: 12px;
+    padding: 12px;
+  }
+
+  .chat-area .input-section {
     padding: 16px 20px 20px 20px;
     margin: 0 16px 16px 16px;
   }
@@ -1305,7 +1496,7 @@ function handleFileSelect(event: Event) {
   }
 }
 
-/* 响应式 */
+/* 响应式 - 平板端 */
 @media (max-width: 1024px) {
   .welcome-title {
     font-size: 2.5rem;
@@ -1317,15 +1508,12 @@ function handleFileSelect(event: Event) {
   }
 }
 
+/* 响应式 - 移动端 */
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
     z-index: 100;
     height: 100%;
-  }
-
-  .welcome-section {
-    padding: 40px 20px 60px 20px;
   }
 
   .welcome-title {
@@ -1762,4 +1950,127 @@ function handleFileSelect(event: Event) {
     height: 32px !important;
   }
 }
+
+/* 三栏布局样式 */
+.chat-and-preview-layout {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex: 1;
+  flex-direction: row;
+}
+
+.chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* 防止flex子元素溢出 */
+  order: 1; /* 确保聊天区域在左侧 */
+}
+
+.preview-area {
+  order: 2; /* 确保预览区域在右侧 */
+  flex-shrink: 0; /* 防止预览区域被压缩 */
+}
+
+/* 调整聊天容器样式以适应新布局 */
+.chat-and-preview-layout .chat-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px 0;
+}
+
+.chat-and-preview-layout .chat-messages {
+  max-width: none; /* 移除最大宽度限制，让聊天区域自适应 */
+  margin: 0 auto; /* 居中对齐消息 */
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+/* 调整消息项样式以适应新布局 */
+.chat-and-preview-layout .message-item {
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.chat-and-preview-layout .message-content {
+  max-width: 100%;
+  width: auto;
+  flex: 1;
+}
+
+/* 调整三栏布局的输入区域样式 */
+.chat-and-preview-layout .input-section {
+  margin: 0 20px 20px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.chat-and-preview-layout .chat-sender-container {
+  margin: 0 auto;
+  max-width: 1200px;
+  width: 100%;
+}
+
+/* 侧边栏收缩状态的样式优化 */
+.sidebar.collapsed {
+  width: 56px !important;
+}
+
+/* 预览区域显示时的布局调整 */
+.preview-area-visible .main-content {
+  padding-right: 0;
+}
+
+/* 响应式适配 - 平板端 */
+@media (max-width: 1199px) and (min-width: 768px) {
+  .preview-area {
+    width: 320px;
+  }
+}
+
+/* 响应式适配 - 移动端 */
+@media (max-width: 767px) {
+  .chat-and-preview-layout {
+    position: relative;
+  }
+
+  .preview-area {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .chat-and-preview-layout .input-section {
+    margin: 0 16px 16px 16px;
+  }
+
+  .chat-and-preview-layout .chat-container {
+    padding: 16px 0;
+  }
+
+  .chat-and-preview-layout .chat-messages {
+    gap: 16px;
+  }
+}
+
+/* 已移除旧的欢迎页面样式，使用新的扁平化结构 */
 </style>
