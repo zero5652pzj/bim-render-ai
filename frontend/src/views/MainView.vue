@@ -624,6 +624,8 @@ function handleFileSelect(event: Event) {
             <input
               ref="fileInput"
               type="file"
+              id="file-upload-main"
+              name="file-upload"
               accept="image/*,.pdf,.doc,.docx,.dwg,.rvt"
               multiple
               style="display: none"
@@ -770,6 +772,8 @@ function handleFileSelect(event: Event) {
               <input
                 ref="fileInput"
                 type="file"
+                id="file-upload-chat"
+                name="file-upload"
                 accept="image/*,.pdf,.doc,.docx,.dwg,.rvt"
                 multiple
                 style="display: none"

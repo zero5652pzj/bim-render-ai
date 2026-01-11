@@ -83,24 +83,19 @@ export const useConversationStore = defineStore('conversation', () => {
         return false
       }
 
-      // 先删除会话的所有消息
-      const { error: messagesError } = await supabase
-        .from('messages')
-        .update({ is_deleted: true })
-        .eq('conversation_id', id)
+      // 使用 RPC 函数删除会话（绕过 RLS 触发器问题）
+      const { data, error } = await supabase.rpc('delete_conversation_with_messages', {
+        p_conversation_id: id
+      })
 
-      if (messagesError) {
-        console.error('[ConversationStore] 删除消息失败：', messagesError)
+      if (error) {
+        console.error('[ConversationStore] 会话删除失败：', error)
         return false
       }
 
-      // 再删除会话
-      const { error: conversationError } = await supabase
-        .from('conversations')
-        .update({ is_deleted: true })
-        .eq('id', id)
-
-      if (!conversationError) {
+      // 检查返回结果
+      const result = data as { success: boolean; error?: string }
+      if (result?.success) {
         conversations.value = conversations.value.filter(c => c.id !== id)
         if (currentConversation.value?.id === id) {
           currentConversation.value = null
@@ -108,7 +103,7 @@ export const useConversationStore = defineStore('conversation', () => {
         console.log('[ConversationStore] 会话删除成功：', id)
         return true
       } else {
-        console.error('[ConversationStore] 会话删除失败：', conversationError)
+        console.error('[ConversationStore] 会话删除失败：', result?.error || '未知错误')
         return false
       }
     } catch (err) {
