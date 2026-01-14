@@ -103,3 +103,5 @@ playwright/.cache/
 # Trae IDE
 .trae
 
+temclaude-*-cmd
+*.png

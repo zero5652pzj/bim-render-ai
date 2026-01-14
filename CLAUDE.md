@@ -13,6 +13,9 @@ Use `@/openspec/AGENTS.md` to learn:
 - Spec format and conventions
 - Project structure and guidelines
 
+Code optimization workflow:
+- After completing code changes, use Agent(code-simplifier) to optimize and refine the code for clarity, consistency, and maintainability
+
 Keep this managed block so 'openspec update' can refresh the instructions.
 
 <!-- OPENSPEC:END -->
