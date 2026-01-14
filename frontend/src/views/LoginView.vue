@@ -8,31 +8,31 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const formData = ref({
-  phone: '',
+  email: '',
   password: ''
 })
 
 const loading = ref(false)
 const error = ref('')
-const phoneError = ref('')
+const emailError = ref('')
 const passwordError = ref('')
 
 // 实时验证
-const validatePhone = () => {
-  const phone = formData.value.phone
-  const phoneRegex = /^1[3-9]\d{9}$/
+const validateEmail = () => {
+  const email = formData.value.email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-  if (!phone) {
-    phoneError.value = '请输入手机号'
+  if (!email) {
+    emailError.value = '请输入邮箱地址'
     return false
   }
 
-  if (!phoneRegex.test(phone)) {
-    phoneError.value = '请输入有效的手机号（中国大陆）'
+  if (!emailRegex.test(email)) {
+    emailError.value = '请输入有效的邮箱地址'
     return false
   }
 
-  phoneError.value = ''
+  emailError.value = ''
   return true
 }
 
@@ -54,7 +54,7 @@ const validatePassword = () => {
 }
 
 const isFormValid = computed(() => {
-  return validatePhone() && validatePassword() && formData.value.phone && formData.value.password
+  return validateEmail() && validatePassword() && formData.value.email && formData.value.password
 })
 
 // 登录
@@ -68,8 +68,8 @@ async function handleLogin() {
   error.value = ''
 
   try {
-    const result = await authStore.loginWithPhonePassword(
-      formData.value.phone,
+    const result = await authStore.loginWithPassword(
+      formData.value.email,
       formData.value.password
     )
 
@@ -97,7 +97,7 @@ async function handleLogin() {
       // 开始检查认证状态
       checkAuth()
     } else {
-      error.value = result.error || '登录失败，请检查手机号和密码'
+      error.value = result.error || '登录失败，请检查邮箱和密码'
     }
   } catch (err: any) {
     error.value = err.message || '登录失败，请稍后重试'
@@ -170,28 +170,28 @@ function handleKeydown(event: KeyboardEvent) {
 
         <!-- 登录表单 -->
         <form @submit.prevent="handleLogin" class="login-form">
-          <!-- 手机号输入 -->
+          <!-- 邮箱输入 -->
           <div class="form-group">
-            <label for="phone" class="form-label">手机号</label>
-            <div class="input-wrapper" :class="{ 'error': phoneError }">
+            <label for="email" class="form-label">邮箱</label>
+            <div class="input-wrapper" :class="{ 'error': emailError }">
               <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <rect x="5" y="2" width="14" height="20" rx="2" ry="2" stroke-width="2"/>
-                <line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2"/>
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke-width="2"/>
+                <polyline points="22,6 12,13 2,6" stroke-width="2"/>
               </svg>
               <input
-                id="phone"
-                v-model="formData.phone"
-                type="tel"
+                id="email"
+                v-model="formData.email"
+                type="email"
                 class="form-input"
-                :class="{ 'has-value': formData.phone }"
-                placeholder="请输入手机号"
-                @blur="validatePhone"
+                :class="{ 'has-value': formData.email }"
+                placeholder="请输入邮箱地址"
+                @blur="validateEmail"
                 @keydown="handleKeydown"
-                autocomplete="tel"
+                autocomplete="email"
               />
             </div>
             <Transition name="fade-slide">
-              <p v-if="phoneError" class="error-text">{{ phoneError }}</p>
+              <p v-if="emailError" class="error-text">{{ emailError }}</p>
             </Transition>
           </div>
 

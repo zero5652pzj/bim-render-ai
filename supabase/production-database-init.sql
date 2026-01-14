@@ -21,6 +21,40 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 兼容：如果 profiles 表已存在（来自旧版本脚本/手工创建），则补齐缺失列
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS username TEXT,
+  ADD COLUMN IF NOT EXISTS full_name TEXT,
+  ADD COLUMN IF NOT EXISTS avatar_url TEXT,
+  ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+
+-- 兼容：补充 username 的唯一性（仅当尚未存在“仅针对 username 的唯一约束”时）
+DO $$
+DECLARE
+  v_username_attnum int;
+BEGIN
+  SELECT attnum
+    INTO v_username_attnum
+  FROM pg_attribute
+  WHERE attrelid = 'public.profiles'::regclass
+    AND attname = 'username'
+    AND NOT attisdropped;
+
+  IF v_username_attnum IS NOT NULL THEN
+    IF NOT EXISTS (
+      SELECT 1
+      FROM pg_constraint
+      WHERE conrelid = 'public.profiles'::regclass
+        AND contype = 'u'
+        AND conkey = ARRAY[v_username_attnum::int2]
+    ) THEN
+      ALTER TABLE public.profiles
+        ADD CONSTRAINT profiles_username_unique UNIQUE (username);
+    END IF;
+  END IF;
+END $$ LANGUAGE plpgsql;
+
 -- ============================================================
 -- 2. 创建会话表 (conversations)
 -- ============================================================
@@ -101,7 +135,7 @@ BEGIN
     updated_at = NOW()
   WHERE id = p_conversation_id;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions, pg_temp;
 
 -- 消息变更时重新计算会话统计的触发器函数
 CREATE OR REPLACE FUNCTION public.on_message_changed_recompute_conversation()
@@ -139,7 +173,7 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions, pg_temp;
 
 -- ============================================================
 -- 6. 创建触发器
@@ -196,7 +230,7 @@ BEGIN
   SET is_deleted = TRUE, updated_at = NOW()
   WHERE user_id = auth.uid();
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, extensions, pg_temp;
 
 -- ============================================================
 -- 8. 启用行级安全 (RLS)
@@ -297,7 +331,8 @@ CREATE POLICY "messages_update_policy"
   ON public.messages FOR UPDATE
   TO authenticated
   USING (
-    EXISTS (
+    is_deleted = FALSE
+    AND EXISTS (
       SELECT 1 FROM public.conversations
       WHERE id = messages.conversation_id
       AND user_id = auth.uid()

@@ -5,6 +5,7 @@ import { MessagePlugin } from 'tdesign-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { useConversationStore } from '@/stores/conversation'
 import { useMessageStore } from '@/stores/message'
+import { useMarkdown } from '@/composables/useMarkdown'
 import UserMenu from '@/components/common/UserMenu.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import ClearHistoryDialog from '@/components/ClearHistoryDialog.vue'
@@ -12,6 +13,9 @@ import PreviewArea from '@/components/common/PreviewArea.vue'
 import { ChatSender } from '@tdesign-vue-next/chat'
 import { chatWithMinimax } from '@/lib/minimax-api'
 import { supabase } from '@/lib/supabase'
+
+// 使用 Markdown 渲染
+const { renderMarkdown } = useMarkdown()
 
 const authStore = useAuthStore()
 const conversationStore = useConversationStore()
@@ -566,7 +570,7 @@ function handleFileSelect(event: Event) {
               placeholder="描述您想要的桥梁模型..."
               :maxlength="1000"
               :show-limit="true"
-              :auto-size="{ minRows: 1, maxRows: 4 }"
+              :textarea-props="{ autosize: { minRows: 2, maxRows: 5 } }"
               @enter="handleSend"
               @send="handleSend"
               @file-upload="handleFileUpload"
@@ -620,6 +624,8 @@ function handleFileSelect(event: Event) {
             <input
               ref="fileInput"
               type="file"
+              id="file-upload-main"
+              name="file-upload"
               accept="image/*,.pdf,.doc,.docx,.dwg,.rvt"
               multiple
               style="display: none"
@@ -661,7 +667,7 @@ function handleFileSelect(event: Event) {
                 </div>
                 <div class="message-content-wrapper">
                   <div class="message-content">
-                    <div class="message-text" v-html="msg.content.replace(/\n/g, '<br>')"></div>
+                    <div class="message-text" v-html="renderMarkdown(msg.content)"></div>
                     <div class="message-time">{{ new Date(msg.created_at).toLocaleTimeString() }}</div>
                   </div>
                   <!-- 消息删除按钮 -->
@@ -712,7 +718,7 @@ function handleFileSelect(event: Event) {
                 placeholder="描述您想要的桥梁模型..."
                 :maxlength="1000"
                 :show-limit="true"
-                :auto-size="{ minRows: 1, maxRows: 4 }"
+                :auto-size="{ minRows: 3, maxRows: 8 }"
                 @enter="handleSend"
                 @send="handleSend"
                 @file-upload="handleFileUpload"
@@ -766,6 +772,8 @@ function handleFileSelect(event: Event) {
               <input
                 ref="fileInput"
                 type="file"
+                id="file-upload-chat"
+                name="file-upload"
                 accept="image/*,.pdf,.doc,.docx,.dwg,.rvt"
                 multiple
                 style="display: none"
@@ -812,15 +820,39 @@ function handleFileSelect(event: Event) {
 </template>
 
 <style scoped>
+/* ========================================
+   科技感玻璃态主题 - AI+BIM
+   ======================================== */
+
+/* 引入 Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+/* CSS 变量 - 科技感配色方案 */
+:deep(.main-container) {
+  --glass-bg: rgba(15, 23, 42, 0.75);
+  --glass-border: rgba(59, 130, 246, 0.25);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --neon-blue: #3B82F6;
+  --neon-violet: #8B5CF6;
+  --neon-cyan: #06B6D4;
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.85);
+  --text-muted: rgba(255, 255, 255, 0.6);
+}
+
 /* 主容器 */
 .main-container {
   display: flex;
   height: 100vh;
   overflow: hidden;
   position: relative;
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #0F172A 100%);
 }
 
-/* 动态背景 */
+/* ========================================
+   动态背景 - 科技感深空
+   ======================================== */
 .background-animation {
   position: absolute;
   top: 0;
@@ -831,22 +863,17 @@ function handleFileSelect(event: Event) {
   overflow: hidden;
 }
 
+/* 深空渐变层 */
 .bg-gradient-1 {
   position: absolute;
   top: -50%;
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(
-    circle at 20% 30%,
-    rgba(59, 130, 246, 0.08) 0%,
-    transparent 50%
-  ),
-  radial-gradient(
-    circle at 80% 70%,
-    rgba(139, 92, 246, 0.08) 0%,
-    transparent 50%
-  );
+  background:
+    radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.08) 0%, transparent 50%);
   animation: gradient-float 20s ease-in-out infinite;
 }
 
@@ -856,19 +883,13 @@ function handleFileSelect(event: Event) {
   right: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(
-    circle at 60% 20%,
-    rgba(59, 130, 246, 0.05) 0%,
-    transparent 50%
-  ),
-  radial-gradient(
-    circle at 40% 80%,
-    rgba(139, 92, 246, 0.05) 0%,
-    transparent 50%
-  );
+  background:
+    radial-gradient(circle at 60% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 40% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 40%);
   animation: gradient-float 25s ease-in-out infinite reverse;
 }
 
+/* 科技感网格图案 */
 .bg-pattern {
   position: absolute;
   top: 0;
@@ -876,10 +897,28 @@ function handleFileSelect(event: Event) {
   right: 0;
   bottom: 0;
   background-image:
-    linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
   background-size: 60px 60px;
   animation: pattern-move 30s linear infinite;
+}
+
+/* 扫描线效果 */
+.bg-pattern::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(59, 130, 246, 0.03) 50%,
+    transparent 100%
+  );
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
 }
 
 @keyframes gradient-float {
@@ -903,20 +942,37 @@ function handleFileSelect(event: Event) {
   }
 }
 
-/* 侧边栏 */
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+/* ========================================
+   玻璃态侧边栏
+   ======================================== */
 .sidebar {
   width: 280px;
-  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-  color: white;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-right: 1px solid rgba(59, 130, 246, 0.15);
+  color: var(--text-primary);
   display: flex;
   flex-direction: column;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   position: relative;
   z-index: 10;
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    4px 0 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
+/* 侧边栏光晕效果 */
 .sidebar::before {
   content: '';
   position: absolute;
@@ -924,43 +980,74 @@ function handleFileSelect(event: Event) {
   left: 0;
   right: 0;
   bottom: 0;
+  background:
+    linear-gradient(180deg, rgba(59, 130, 246, 0.08) 0%, transparent 30%),
+    linear-gradient(180deg, transparent 70%, rgba(139, 92, 246, 0.05) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 霓虹边框效果 */
+.sidebar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
   background: linear-gradient(
     180deg,
-    rgba(59, 130, 246, 0.05) 0%,
+    transparent 0%,
+    rgba(59, 130, 246, 0.5) 50%,
     transparent 100%
   );
-  pointer-events: none;
+  opacity: 0.5;
+  animation: border-pulse 4s ease-in-out infinite;
 }
 
-.sidebar.collapsed {
-  width: 0;
+@keyframes border-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
 }
 
-/* 展开按钮 */
+/* 删除重复的侧边栏样式 - 已被新的玻璃态样式替代 */
+
+/* ========================================
+   科技感展开按钮
+   ======================================== */
 .expand-btn {
   position: fixed !important;
   top: 20px !important;
   left: 20px !important;
   z-index: 1000 !important;
-  background: rgba(30, 41, 59, 0.95) !important;
-  backdrop-filter: blur(20px) !important;
-  color: white !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  background: rgba(15, 23, 42, 0.8) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(59, 130, 246, 0.2) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   width: 48px !important;
   height: 48px !important;
 }
 
 .expand-btn:hover {
-  background: rgba(30, 41, 59, 1) !important;
+  background: rgba(59, 130, 246, 0.2) !important;
+  border-color: rgba(59, 130, 246, 0.6) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2) !important;
+  box-shadow:
+    0 6px 24px rgba(59, 130, 246, 0.3),
+    0 0 30px rgba(59, 130, 246, 0.4) !important;
 }
 
+/* ========================================
+   科技感侧边栏头部
+   ======================================== */
 .sidebar-header {
   padding: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.15);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -976,61 +1063,78 @@ function handleFileSelect(event: Event) {
 }
 
 .logo-icon {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: logo-pulse 2s ease-in-out infinite;
+  animation: logo-pulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5));
 }
 
 @keyframes logo-pulse {
   0%, 100% {
     transform: scale(1);
+    filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5));
   }
   50% {
-    transform: scale(1.05);
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.6));
   }
 }
 
 .sidebar-title {
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 20px;
   font-weight: 700;
   margin: 0;
-  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #06B6D4 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   letter-spacing: -0.02em;
+  filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3));
 }
 
 .collapse-btn {
-  color: rgba(255, 255, 255, 0.7) !important;
-  transition: all 0.2s ease !important;
+  color: var(--text-secondary) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 .collapse-btn:hover {
-  color: white !important;
-  background: rgba(255, 255, 255, 0.1) !important;
+  color: #06B6D4 !important;
+  background: rgba(6, 182, 212, 0.15) !important;
+  border-color: rgba(6, 182, 212, 0.3) !important;
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.3) !important;
 }
 
+/* ========================================
+   科技感新建对话按钮
+   ======================================== */
 .new-chat-button {
   padding: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.15);
   position: relative;
   z-index: 1;
 }
 
 .new-chat-btn {
-  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
-  border: none !important;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3) !important;
-  transition: all 0.2s ease !important;
+  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  box-shadow:
+    0 4px 16px rgba(59, 130, 246, 0.4),
+    0 0 20px rgba(59, 130, 246, 0.2) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .new-chat-btn:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow:
+    0 6px 24px rgba(59, 130, 246, 0.5),
+    0 0 30px rgba(139, 92, 246, 0.3) !important;
+  background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%) !important;
 }
 
 .conversation-list {
@@ -1041,13 +1145,32 @@ function handleFileSelect(event: Event) {
   z-index: 1;
 }
 
+/* 自定义会话列表滚动条 - 科技感 */
+.conversation-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.conversation-list::-webkit-scrollbar-track {
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 2px;
+}
+
+.conversation-list::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 2px;
+}
+
+.conversation-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.5);
+}
+
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.7);
   padding: 60px 20px;
   animation: fade-in-up 0.6s ease-out;
 }
@@ -1067,8 +1190,9 @@ function handleFileSelect(event: Event) {
   width: 48px;
   height: 48px;
   margin-bottom: 16px;
-  opacity: 0.4;
+  opacity: 0.6;
   animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.4));
 }
 
 @keyframes float {
@@ -1082,19 +1206,19 @@ function handleFileSelect(event: Event) {
 
 .empty-text {
   font-size: 16px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.85);
   margin: 0 0 8px 0;
   font-weight: 500;
 }
 
 .hint {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.6);
   margin: 0;
 }
 
 .sidebar-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(59, 130, 246, 0.15);
   padding: 20px;
   position: relative;
   z-index: 1;
@@ -1105,19 +1229,21 @@ function handleFileSelect(event: Event) {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  background: transparent;
   position: relative;
   z-index: 1;
-  padding: 0 0 20px 0;
+  padding: 0;
 }
 
-/* 欢迎页面布局 */
+/* ========================================
+   玻璃态欢迎页面
+   ======================================== */
 .welcome-page {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 40px 20px 20px 20px;
+  padding: 60px 40px 40px 40px;
   min-height: 100vh;
   position: relative;
   z-index: 1;
@@ -1127,14 +1253,15 @@ function handleFileSelect(event: Event) {
 .welcome-header {
   text-align: center;
   animation: fade-in-up 0.8s ease-out;
-  margin-bottom: 40px;
+  margin-bottom: 60px;
 }
 
 .hero-icon {
-  width: 120px;
-  height: 120px;
-  margin: 0 auto 32px;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 40px;
   animation: hero-float 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 30px rgba(59, 130, 246, 0.4)) drop-shadow(0 0 60px rgba(139, 92, 246, 0.2));
 }
 
 @keyframes hero-float {
@@ -1142,63 +1269,93 @@ function handleFileSelect(event: Event) {
     transform: translateY(0) scale(1);
   }
   50% {
-    transform: translateY(-15px) scale(1.02);
+    transform: translateY(-20px) scale(1.02);
   }
 }
 
 .welcome-title {
-  font-size: 3rem;
-  font-weight: 800;
-  color: #0f172a;
-  margin: 0 0 16px 0;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #E8F4FC;
+  margin: 0 0 20px 0;
   letter-spacing: -0.02em;
   line-height: 1.2;
+  text-shadow:
+    0 0 60px rgba(96, 165, 250, 0.5),
+    0 0 100px rgba(167, 139, 250, 0.3),
+    0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+  background: linear-gradient(135deg, #60A5FA 0%, #A78BFA 50%, #22D3EE 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  position: relative;
+  display: inline-block;
+  filter: drop-shadow(0 0 30px rgba(96, 165, 250, 0.6));
+}
+
+/* 渐变文字光晕效果 - 增强版 */
+.gradient-text::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: -1;
+  background: linear-gradient(135deg, #60A5FA 0%, #A78BFA 50%, #22D3EE 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: blur(30px);
+  opacity: 0.7;
 }
 
 .welcome-subtitle {
   font-size: 1.25rem;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.85);
   margin: 0 auto;
   max-width: 600px;
-  line-height: 1.6;
+  line-height: 1.8;
   font-weight: 400;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
-/* 示例卡片 */
+/* ========================================
+   玻璃态示例卡片
+   ======================================== */
 .example-cards {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-  max-width: 800px;
-  margin: 0 auto 40px auto;
+  gap: 28px;
+  max-width: 1500px;
+  margin: 0 auto 60px auto;
   animation: fade-in-up 0.8s ease-out 0.4s backwards;
 }
 
 .example-card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
-  border-radius: 16px;
-  padding: 32px 24px;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 20px;
+  padding: 36px 28px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 16px;
+  gap: 20px;
   position: relative;
   overflow: hidden;
 }
 
+/* 卡片光晕效果 */
 .example-card::before {
   content: '';
   position: absolute;
@@ -1206,56 +1363,104 @@ function handleFileSelect(event: Event) {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease;
+}
+
+/* 卡片扫描线效果 */
+.example-card::after {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(59, 130, 246, 0.1) 50%,
+    transparent 100%
+  );
+  transition: top 0.6s ease;
+  opacity: 0;
 }
 
 .example-card:hover {
-  transform: translateY(-8px);
-  border-color: rgba(59, 130, 246, 0.3);
-  box-shadow: 0 12px 32px rgba(59, 130, 246, 0.15);
+  transform: translateY(-12px) scale(1.02);
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow:
+    0 20px 50px rgba(59, 130, 246, 0.25),
+    0 0 30px rgba(59, 130, 246, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .example-card:hover::before {
   opacity: 1;
 }
 
+.example-card:hover::after {
+  opacity: 1;
+  top: 100%;
+}
+
 .card-icon {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   color: #3B82F6;
-  transition: all 0.3s ease;
+  transition: all 0.4s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
   z-index: 1;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 16px;
+  box-shadow:
+    0 0 20px rgba(59, 130, 246, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .example-card:hover .card-icon {
-  transform: scale(1.1);
-  color: #2563EB;
+  transform: scale(1.15) rotate(5deg);
+  color: #06B6D4;
+  background: rgba(6, 182, 212, 0.15);
+  box-shadow:
+    0 0 30px rgba(6, 182, 212, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .card-icon svg {
   width: 32px;
   height: 32px;
+  filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+}
+
+.example-card:hover .card-icon svg {
+  filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.7));
 }
 
 .example-card h3 {
+  font-family: 'DM Sans', sans-serif;
   font-size: 15px;
-  color: #1e293b;
+  color: rgba(255, 255, 255, 0.95);
   margin: 0;
-  line-height: 1.6;
-  font-weight: 600;
+  line-height: 1.7;
+  font-weight: 500;
   position: relative;
   z-index: 1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
+/* 删除重复的旧样式 - 已被新的玻璃态样式替代 */
+
+/* ========================================
+   玻璃态输入区域
+   ======================================== */
 /* 主页输入区域 - 在示例卡片下方 */
 .welcome-page .input-section {
-  max-width: 1000px;
+  width: 70% !important;
+  max-width: 1600px !important;
   margin: 0 auto 20px auto;
   padding: 0;
   background: transparent;
@@ -1266,16 +1471,19 @@ function handleFileSelect(event: Event) {
 
 /* 聊天区输入区域 */
 .chat-area .input-section {
-  padding: 28px 40px 32px 40px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 24px 32px 28px 32px;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
   position: relative;
   z-index: 1;
   flex-shrink: 0;
   margin: 0 20px 28px 20px;
-  border-radius: 24px;
-  box-shadow: 0 8px 36px rgba(0, 0, 0, 0.12);
+  border-radius: 20px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   width: 100%;
   max-width: none;
   margin-left: auto;
@@ -1291,84 +1499,112 @@ function handleFileSelect(event: Event) {
 
 /* 主页的ChatSender容器样式 */
 .welcome-page .chat-sender-container {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 16px;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-radius: 24px;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  padding: 20px;
   margin: 0 auto;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
-/* 聊天区的ChatSender容器样式 */
-.chat-area .chat-sender-container {
-  width: 100%;
-  max-width: none;
-  margin: 0 auto;
-  position: relative;
-}
-
-/* ChatSender 样式优化 */
+/* ========================================
+   科技感输入框样式
+   ======================================== */
 :deep(.t-chat-sender) {
-  border-radius: 20px !important;
-  border: 3px solid #e2e8f0 !important;
-  background: white !important;
-  transition: all 0.3s ease !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+  border-radius: 16px !important;
+  border: 2px solid rgba(59, 130, 246, 0.2) !important;
+  background: rgba(15, 23, 42, 0.4) !important;
+  backdrop-filter: blur(12px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
   overflow: hidden;
-  min-height: 80px !important;
+  min-height: 120px !important;
   padding: 0 !important;
   width: 100% !important;
   max-width: none !important;
 }
 
 :deep(.t-chat-sender:hover) {
-  border-color: #3B82F6 !important;
-  box-shadow: 0 6px 28px rgba(59, 130, 246, 0.15) !important;
-  transform: translateY(-1px) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  box-shadow:
+    0 6px 20px rgba(59, 130, 246, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  transform: translateY(-2px) !important;
 }
 
 :deep(.t-chat-sender--focused) {
-  border-color: #3B82F6 !important;
-  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.2) !important;
-  transform: translateY(-1px) !important;
+  border-color: rgba(59, 130, 246, 0.6) !important;
+  box-shadow:
+    0 8px 24px rgba(59, 130, 246, 0.3),
+    0 0 20px rgba(59, 130, 246, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  transform: translateY(-2px) !important;
 }
 
+/* 输入区域样式 */
 :deep(.t-chat-sender__input) {
-  padding: 20px 24px !important;
+  padding: 24px 28px !important;
   font-size: 17px !important;
-  line-height: 1.7 !important;
-  min-height: 56px !important;
-  max-height: 100px !important;
+  line-height: 1.8 !important;
+  min-height: 100px !important;
   flex-shrink: 1;
   border-radius: 0 !important;
+  color: var(--text-primary) !important;
+  background: transparent !important;
+}
+
+/* 直接覆盖内部 textarea 元素 */
+:deep(.t-chat-sender__input textarea) {
+  min-height: 100px !important;
+  height: 100px !important;
+  padding: 24px 28px !important;
+  font-size: 17px !important;
+  line-height: 1.8 !important;
+  resize: none !important;
+}
+
+:deep(.t-chat-sender__input::placeholder) {
+  color: rgba(255, 255, 255, 0.5) !important;
 }
 
 :deep(.t-chat-sender__prefix) {
-  margin-left: 20px !important;
-  margin-right: 12px !important;
+  margin-left: 18px !important;
+  margin-right: 10px !important;
 }
 
 :deep(.t-chat-sender__suffix) {
-  margin-right: 20px !important;
-  margin-left: 12px !important;
+  margin-right: 18px !important;
+  margin-left: 10px !important;
 }
 
 /* 操作按钮区域 */
 .chat-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 20px 12px 0;
+  gap: 10px;
+  padding: 0 18px 10px 0;
   flex-shrink: 0;
 }
 
+/* ========================================
+   科技感按钮样式
+   ======================================== */
 /* 上传按钮样式 */
 :deep(.upload-btn) {
-  color: #94a3b8 !important;
-  transition: all 0.2s ease !important;
-  height: 48px !important;
-  width: 48px !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+  background: rgba(59, 130, 246, 0.15) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  height: 46px !important;
+  width: 46px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -1376,46 +1612,65 @@ function handleFileSelect(event: Event) {
 }
 
 :deep(.upload-btn:hover) {
-  color: #3B82F6 !important;
-  background: rgba(59, 130, 246, 0.1) !important;
+  color: #06B6D4 !important;
+  background: rgba(6, 182, 212, 0.2) !important;
+  border-color: rgba(6, 182, 212, 0.5) !important;
+  box-shadow: 0 0 25px rgba(6, 182, 212, 0.4) !important;
+  transform: translateY(-2px) !important;
 }
 
 :deep(.upload-btn:disabled) {
-  color: #cbd5e1 !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  opacity: 0.6 !important;
 }
 
-/* 发送按钮样式 */
+/* 发送按钮样式 - 霓虹效果 */
 :deep(.send-btn) {
-  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
-  border: none !important;
-  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35) !important;
+  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%) !important;
+  border: 1px solid rgba(59, 130, 246, 0.5) !important;
+  box-shadow:
+    0 4px 16px rgba(59, 130, 246, 0.4),
+    0 0 20px rgba(59, 130, 246, 0.2) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  height: 48px !important;
-  min-width: 56px !important;
+  height: 46px !important;
+  min-width: 54px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  border-radius: 14px !important;
+  border-radius: 12px !important;
 }
 
 :deep(.send-btn:hover:not(:disabled)) {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4) !important;
+  transform: translateY(-2px) scale(1.05) !important;
+  box-shadow:
+    0 6px 20px rgba(59, 130, 246, 0.5),
+    0 0 30px rgba(59, 130, 246, 0.4),
+    0 0 40px rgba(139, 92, 246, 0.2) !important;
+  background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%) !important;
 }
 
 :deep(.send-btn:disabled) {
-  background: #e2e8f0 !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
   box-shadow: none !important;
+  opacity: 0.5 !important;
 }
 
+/* ========================================
+   科技感图标和提示文字
+   ======================================== */
 .input-icon {
-  color: #94a3b8;
-  transition: color 0.2s ease;
-  font-size: 24px;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s ease;
+  font-size: 20px;
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.4));
 }
 
 :deep(.t-chat-sender--focused) .input-icon {
-  color: #3B82F6;
+  color: #06B6D4;
+  filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.8));
 }
 
 .input-actions {
@@ -1430,11 +1685,13 @@ function handleFileSelect(event: Event) {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
-  color: #64748b;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.7);
   white-space: nowrap;
   margin-top: 12px;
   padding: 0 4px;
+  font-weight: 400;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 :deep(.t-icon--loading) {
@@ -1572,7 +1829,9 @@ function handleFileSelect(event: Event) {
   }
 }
 
-/* 会话列表样式 */
+/* ========================================
+   科技感会话列表
+   ======================================== */
 .conversations {
   padding: 0;
 }
@@ -1580,24 +1839,46 @@ function handleFileSelect(event: Event) {
 .conversation-item {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
-  margin: 4px 8px;
-  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 6px 10px;
+  border-radius: 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: rgba(255, 255, 255, 0.9);
   position: relative;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  backdrop-filter: blur(10px);
 }
 
 .conversation-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--text-primary);
+  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateX(4px);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
 }
 
 .conversation-item.active {
-  background: rgba(59, 130, 246, 0.2);
-  color: white;
-  border: 1px solid rgba(59, 130, 246, 0.4);
+  background: rgba(59, 130, 246, 0.25);
+  color: var(--text-primary);
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  box-shadow:
+    0 0 25px rgba(59, 130, 246, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* 会话项霓虹边框效果 */
+.conversation-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 20%;
+  bottom: 20%;
+  width: 3px;
+  background: linear-gradient(180deg, #3B82F6, #8B5CF6);
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
 }
 
 .conversation-icon {
@@ -1624,12 +1905,13 @@ function handleFileSelect(event: Event) {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .conversation-time {
   font-size: 12px;
   margin: 0;
-  opacity: 0.6;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* 删除按钮样式 */
@@ -1641,16 +1923,17 @@ function handleFileSelect(event: Event) {
   width: 28px;
   height: 28px;
   border: none;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.5);
+  background: rgba(244, 67, 54, 0.15);
+  color: #f44336;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   padding: 0;
+  backdrop-filter: blur(8px);
 }
 
 .conversation-item:hover .delete-conversation-btn {
@@ -1658,8 +1941,9 @@ function handleFileSelect(event: Event) {
 }
 
 .delete-conversation-btn:hover {
-  background: rgba(244, 67, 54, 0.2);
-  color: #f44336;
+  background: rgba(244, 67, 54, 0.25);
+  color: #ff6b6b;
+  box-shadow: 0 0 15px rgba(244, 67, 54, 0.4);
 }
 
 .delete-conversation-btn:disabled {
@@ -1670,20 +1954,24 @@ function handleFileSelect(event: Event) {
 /* 清空所有历史按钮样式 */
 .clear-history-button {
   padding: 12px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.15);
   position: relative;
   z-index: 1;
 }
 
 .clear-history-btn {
-  color: rgba(255, 255, 255, 0.7) !important;
+  color: rgba(255, 255, 255, 0.75) !important;
   font-size: 14px !important;
-  transition: all 0.2s ease !important;
+  transition: all 0.3s ease !important;
+  background: rgba(244, 67, 54, 0.1) !important;
+  border: 1px solid rgba(244, 67, 54, 0.2) !important;
 }
 
 .clear-history-btn:hover {
-  color: #f44336 !important;
-  background: rgba(244, 67, 54, 0.1) !important;
+  color: #ff6b6b !important;
+  background: rgba(244, 67, 54, 0.2) !important;
+  border-color: rgba(244, 67, 54, 0.4) !important;
+  box-shadow: 0 0 15px rgba(244, 67, 54, 0.3) !important;
 }
 
 /* 修复 RLS 策略按钮样式 */
@@ -1705,12 +1993,14 @@ function handleFileSelect(event: Event) {
   background: rgba(59, 130, 246, 0.1) !important;
 }
 
-/* 聊天界面样式 */
+/* ========================================
+   科技感聊天界面
+   ======================================== */
 .chat-section {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  background: transparent;
   position: relative;
   z-index: 1;
   min-height: 0;
@@ -1725,8 +2015,28 @@ function handleFileSelect(event: Event) {
   scroll-behavior: smooth;
 }
 
+/* 自定义滚动条 - 科技感 */
+.chat-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-container::-webkit-scrollbar-track {
+  background: rgba(59, 130, 246, 0.05);
+  border-radius: 3px;
+}
+
+.chat-container::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+.chat-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.5);
+}
+
 .chat-messages {
-  max-width: 900px;
+  max-width: 1500px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -1736,21 +2046,24 @@ function handleFileSelect(event: Event) {
 .message-item {
   display: flex;
   gap: 12px;
-  animation: message-appear 0.3s ease-out;
+  animation: message-appear 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes message-appear {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(15px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
-/* AI消息 - 左侧对齐 */
+/* ========================================
+   科技感消息气泡
+   ======================================== */
+/* AI消息 - 左侧对齐，霓虹蓝色 */
 .message-ai {
   justify-content: flex-start;
   flex-direction: row;
@@ -1761,13 +2074,19 @@ function handleFileSelect(event: Event) {
 }
 
 .message-ai .message-content {
-  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(139, 92, 246, 0.85) 100%) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: white !important;
-  border-radius: 18px 18px 18px 4px !important;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15) !important;
+  border-radius: 20px 20px 20px 6px !important;
+  box-shadow:
+    0 4px 16px rgba(59, 130, 246, 0.3),
+    0 0 20px rgba(59, 130, 246, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
 }
 
-/* 用户消息 - 右侧对齐 */
+/* 用户消息 - 右侧对齐，玻璃态效果 */
 .message-user {
   justify-content: flex-end;
   flex-direction: row;
@@ -1778,18 +2097,25 @@ function handleFileSelect(event: Event) {
 }
 
 .message-user .message-content {
-  background: #f5f5f5 !important;
-  color: #1e293b !important;
-  border-radius: 18px 18px 4px 18px !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+  background: rgba(15, 23, 42, 0.7) !important;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  color: var(--text-primary) !important;
+  border-radius: 20px 20px 6px 20px !important;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
 }
 
-/* AI 打字动画样式 */
+/* ========================================
+   科技感 AI 打字动画
+   ======================================== */
 .ai-typing .typing-dots {
   display: flex;
   align-items: center;
   gap: 4px;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
   font-style: italic;
   font-size: 14px;
   padding: 12px 16px;
@@ -1797,10 +2123,16 @@ function handleFileSelect(event: Event) {
 
 /* AI思考气泡样式，与AI消息保持一致 */
 .ai-typing {
-  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%) !important;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(139, 92, 246, 0.85) 100%) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: white !important;
-  border-radius: 18px 18px 18px 4px !important;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15) !important;
+  border-radius: 20px 20px 20px 6px !important;
+  box-shadow:
+    0 4px 16px rgba(59, 130, 246, 0.3),
+    0 0 20px rgba(59, 130, 246, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
 }
 
 .ai-typing .dots {
@@ -1821,6 +2153,9 @@ function handleFileSelect(event: Event) {
   }
 }
 
+/* ========================================
+   科技感头像样式
+   ======================================== */
 .message-avatar {
   width: 36px;
   height: 36px;
@@ -1834,7 +2169,7 @@ function handleFileSelect(event: Event) {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1842,6 +2177,9 @@ function handleFileSelect(event: Event) {
   font-weight: 600;
   font-size: 14px;
   overflow: hidden;
+  box-shadow:
+    0 0 20px rgba(59, 130, 246, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .ai-avatar {
@@ -1850,6 +2188,7 @@ function handleFileSelect(event: Event) {
   display: flex;
   align-items: center;
   justify-content: center;
+  filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
 }
 
 .ai-avatar svg {
@@ -1860,28 +2199,147 @@ function handleFileSelect(event: Event) {
 
 .message-content {
   max-width: 70%;
-  padding: 12px 16px;
+  padding: 14px 18px;
 }
 
+/* ========================================
+   科技感消息文本和时间
+   ======================================== */
 .message-text {
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.8;
   word-wrap: break-word;
   white-space: pre-wrap;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* Markdown 样式 - 代码块 */
+.message-text :deep(code) {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  color: #06B6D4;
+  border: 1px solid rgba(6, 182, 212, 0.2);
+}
+
+.message-text :deep(pre) {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 12px 0;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.message-text :deep(pre code) {
+  background: transparent;
+  padding: 0;
+  border: none;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Markdown 样式 - 链接 */
+.message-text :deep(a) {
+  color: #06B6D4;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(6, 182, 212, 0.3);
+  transition: all 0.2s ease;
+}
+
+.message-text :deep(a:hover) {
+  color: #3B82F6;
+  border-bottom-color: rgba(59, 130, 246, 0.5);
+}
+
+/* Markdown 样式 - 列表 */
+.message-text :deep(ul),
+.message-text :deep(ol) {
+  margin: 12px 0;
+  padding-left: 24px;
+}
+
+.message-text :deep(li) {
+  margin: 8px 0;
+  line-height: 1.7;
+}
+
+/* Markdown 样式 - 标题 */
+.message-text :deep(h1),
+.message-text :deep(h2),
+.message-text :deep(h3) {
+  margin: 16px 0 12px 0;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 1);
+}
+
+.message-text :deep(h1) { font-size: 1.5em; }
+.message-text :deep(h2) { font-size: 1.3em; }
+.message-text :deep(h3) { font-size: 1.15em; }
+
+/* Markdown 样式 - 粗体和斜体 */
+.message-text :deep(strong) {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 1);
+}
+
+.message-text :deep(em) {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Markdown 样式 - 引用 */
+.message-text :deep(blockquote) {
+  margin: 12px 0;
+  padding-left: 16px;
+  border-left: 3px solid rgba(59, 130, 246, 0.5);
+  color: rgba(255, 255, 255, 0.8);
+  font-style: italic;
+}
+
+/* Markdown 样式 - 表格 */
+.message-text :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+}
+
+.message-text :deep(th),
+.message-text :deep(td) {
+  padding: 8px 12px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  text-align: left;
+}
+
+.message-text :deep(th) {
+  background: rgba(59, 130, 246, 0.15);
+  font-weight: 600;
+}
+
+/* Markdown 样式 - 水平线 */
+.message-text :deep(hr) {
+  border: none;
+  height: 1px;
+  background: rgba(59, 130, 246, 0.2);
+  margin: 16px 0;
 }
 
 .message-time {
   font-size: 11px;
-  margin-top: 6px;
+  margin-top: 8px;
   opacity: 0.7;
+  font-weight: 500;
 }
 
 .message-user .message-time {
   text-align: right;
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .message-ai .message-time {
   text-align: left;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* 消息内容包装器 */
@@ -1892,25 +2350,25 @@ function handleFileSelect(event: Event) {
   max-width: 100%;
 }
 
-/* 消息删除按钮样式 */
+/* 消息删除按钮样式 - 科技感 */
 .delete-message-btn {
   position: absolute;
   right: 8px;
   top: 8px;
-  width: 24px;
-  height: 24px;
-  border: none;
-  background: rgba(0, 0, 0, 0.1);
-  color: rgba(255, 255, 255, 0.6);
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(8px);
+  color: #f44336;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 0;
-  backdrop-filter: blur(10px);
 }
 
 .message-item:hover .delete-message-btn {
@@ -1919,7 +2377,9 @@ function handleFileSelect(event: Event) {
 
 .delete-message-btn:hover {
   background: rgba(244, 67, 54, 0.2);
-  color: #f44336;
+  border-color: #f44336;
+  box-shadow: 0 0 15px rgba(244, 67, 54, 0.4);
+  transform: scale(1.1);
 }
 
 .delete-message-btn:disabled {
@@ -1971,13 +2431,17 @@ function handleFileSelect(event: Event) {
   }
 }
 
-/* 三栏布局样式 */
+/* ========================================
+   科技感三栏布局
+   ======================================== */
 .chat-and-preview-layout {
   display: flex;
   height: 100%;
   width: 100%;
   flex: 1;
   flex-direction: row;
+  gap: 20px;
+  padding: 20px;
 }
 
 .chat-area {
@@ -1985,13 +2449,13 @@ function handleFileSelect(event: Event) {
   max-width: 40%;
   display: flex;
   flex-direction: column;
-  min-width: 0; /* 防止flex子元素溢出 */
-  order: 2; /* 聊天区域在右侧 */
+  min-width: 0;
+  order: 2;
 }
 
 .preview-area {
-  order: 1; /* 预览区域在左侧（中间位置） */
-  flex-shrink: 0; /* 防止预览区域被压缩 */
+  order: 1;
+  flex-shrink: 0;
 }
 
 /* 调整聊天容器样式以适应新布局 */
@@ -2003,8 +2467,8 @@ function handleFileSelect(event: Event) {
 }
 
 .chat-and-preview-layout .chat-messages {
-  max-width: none; /* 移除最大宽度限制，让聊天区域自适应 */
-  margin: 0 auto; /* 居中对齐消息 */
+  max-width: none;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -2032,11 +2496,15 @@ function handleFileSelect(event: Event) {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-radius: 24px;
-  padding: 28px;
-  box-shadow: 0 8px 36px rgba(0, 0, 0, 0.12);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 20px;
+  padding: 24px 28px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
   width: 80%;
   max-width: 800px;
   min-width: 300px;
@@ -2047,7 +2515,9 @@ function handleFileSelect(event: Event) {
   width: 100%;
 }
 
-/* 侧边栏收缩状态的样式优化 */
+/* ========================================
+   侧边栏收缩状态
+   ======================================== */
 .sidebar.collapsed {
   width: 56px !important;
 }
@@ -2079,6 +2549,7 @@ function handleFileSelect(event: Event) {
   height: 40px !important;
   min-width: 40px !important;
   border-radius: 10px !important;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3) !important;
 }
 
 .sidebar.collapsed .conversation-list {
@@ -2092,12 +2563,15 @@ function handleFileSelect(event: Event) {
   height: 40px !important;
   margin: 0 auto 8px auto !important;
   border-radius: 10px !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-  transition: all 0.2s ease !important;
+  background: rgba(59, 130, 246, 0.1) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .sidebar.collapsed .conversation-item:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
+  background: rgba(59, 130, 246, 0.2) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3) !important;
 }
 
 .sidebar.collapsed .conversation-item .conversation-icon {
@@ -2117,13 +2591,19 @@ function handleFileSelect(event: Event) {
   min-width: 40px !important;
   padding: 0 !important;
   border-radius: 10px !important;
-  background: rgba(255, 255, 255, 0.1) !important;
+  background: rgba(59, 130, 246, 0.1) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
 }
 
 .sidebar.collapsed .user-section .t-button:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
+  background: rgba(59, 130, 246, 0.2) !important;
+  border-color: rgba(59, 130, 246, 0.4) !important;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3) !important;
 }
 
+/* ========================================
+   科技感响应式适配
+   ======================================== */
 /* 预览区域显示时的布局调整 */
 .preview-area-visible .main-content {
   padding-right: 0;
@@ -2140,6 +2620,8 @@ function handleFileSelect(event: Event) {
 @media (max-width: 767px) {
   .chat-and-preview-layout {
     position: relative;
+    padding: 10px;
+    gap: 10px;
   }
 
   .preview-area {
@@ -2148,11 +2630,12 @@ function handleFileSelect(event: Event) {
     right: 0;
     bottom: 0;
     z-index: 1000;
-    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.4);
   }
 
   .chat-and-preview-layout .input-section {
     margin: 0 16px 16px 16px;
+    padding: 16px 20px;
   }
 
   .chat-and-preview-layout .chat-container {
@@ -2161,6 +2644,33 @@ function handleFileSelect(event: Event) {
 
   .chat-and-preview-layout .chat-messages {
     gap: 16px;
+  }
+}
+
+/* ========================================
+   减少动画 - 可访问性
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .logo-icon {
+    animation: none;
+  }
+
+  .hero-icon {
+    animation: none;
+  }
+
+  .bg-pattern::after {
+    animation: none;
+  }
+
+  .sidebar::after {
+    animation: none;
   }
 }
 

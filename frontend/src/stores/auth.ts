@@ -216,10 +216,16 @@ export const useAuthStore = defineStore('auth', () => {
           data: {
             full_name: fullName,
           },
+          emailRedirectTo: undefined, // 禁用邮箱确认重定向
         },
       })
 
       if (error) throw error
+
+      console.log('用户注册成功', {
+        user: data.user?.email,
+        confirmed: true
+      })
 
       return { success: true, data }
     } catch (error: any) {
