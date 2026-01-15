@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import viteCompression from 'vite-plugin-compression'
+import { mcpPlugin } from './vite-plugin-mcp'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,6 +12,7 @@ export default defineConfig({
       algorithm: 'gzip',
       ext: '.gz',
     }),
+    mcpPlugin(), // MCP开发服务器插件
   ],
   resolve: {
     alias: {
@@ -20,14 +22,15 @@ export default defineConfig({
   server: {
     port: 5173,
     open: true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3001',
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path,
-      },
-    },
+    // 移除API代理配置 - 直接调用Vercel Edge Functions
+    // proxy: {
+    //   '/api': {
+    //     target: 'http://localhost:3004',
+    //     changeOrigin: true,
+    //     secure: false,
+    //     rewrite: (path) => path,
+    //   },
+    // },
   },
   build: {
     rollupOptions: {

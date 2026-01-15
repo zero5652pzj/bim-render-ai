@@ -182,6 +182,11 @@ async function handleNewConversation() {
   previewAreaCollapsed.value = false
 }
 
+// 导航到 MCP 测试页面
+function navigateToMCPTest() {
+  router.push('/mcp-test')
+}
+
 // 处理选择会话
 function handleSelectConversation(conversation: any) {
   conversationStore.selectConversation(conversation)
@@ -422,6 +427,21 @@ function handleFileSelect(event: Event) {
             <TIcon name="add" />
           </template>
           <span v-if="!sidebarCollapsed">新建对话</span>
+        </TButton>
+      </div>
+
+      <!-- MCP 测试页面导航 -->
+      <div class="mcp-nav-button" v-if="!sidebarCollapsed">
+        <TButton
+          variant="text"
+          block
+          @click="navigateToMCPTest"
+          class="mcp-test-btn"
+        >
+          <template #icon>
+            <TIcon name="tools" />
+          </template>
+          <span>MCP 功能测试</span>
         </TButton>
       </div>
 
@@ -1135,6 +1155,28 @@ function handleFileSelect(event: Event) {
     0 6px 24px rgba(59, 130, 246, 0.5),
     0 0 30px rgba(139, 92, 246, 0.3) !important;
   background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%) !important;
+}
+
+/* MCP 测试按钮样式 */
+.mcp-nav-button {
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(6, 182, 212, 0.15);
+  position: relative;
+  z-index: 1;
+}
+
+.mcp-test-btn {
+  background: rgba(6, 182, 212, 0.1) !important;
+  border: 1px solid rgba(6, 182, 212, 0.3) !important;
+  color: #06B6D4 !important;
+  transition: all 0.3s ease !important;
+}
+
+.mcp-test-btn:hover {
+  background: rgba(6, 182, 212, 0.2) !important;
+  border-color: rgba(6, 182, 212, 0.5) !important;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.3) !important;
+  transform: translateY(-1px) !important;
 }
 
 .conversation-list {
