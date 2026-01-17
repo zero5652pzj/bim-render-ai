@@ -5,8 +5,10 @@ import { MessagePlugin } from 'tdesign-vue-next'
 import { useAuthStore } from '@/stores/auth'
 import { useConversationStore } from '@/stores/conversation'
 import { useMessageStore } from '@/stores/message'
+import { useThemeStore } from '@/stores/theme'
 import { useMarkdown } from '@/composables/useMarkdown'
 import UserMenu from '@/components/common/UserMenu.vue'
+import ThemeToggle from '@/components/common/ThemeToggle.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import ClearHistoryDialog from '@/components/ClearHistoryDialog.vue'
 import PreviewArea from '@/components/common/PreviewArea.vue'
@@ -20,6 +22,7 @@ const { renderMarkdown } = useMarkdown()
 const authStore = useAuthStore()
 const conversationStore = useConversationStore()
 const messageStore = useMessageStore()
+const themeStore = useThemeStore()
 const router = useRouter()
 const sidebarCollapsed = ref(false)
 
@@ -130,6 +133,9 @@ const hasCurrentConversation = computed(() => !!conversationStore.currentConvers
 
 // 组件挂载时初始化
 onMounted(async () => {
+  // 初始化主题
+  themeStore.initialize()
+
   if (isAuthenticated.value) {
     await conversationStore.loadConversations()
   }
@@ -403,16 +409,19 @@ function handleFileSelect(event: Event) {
           </div>
           <h2 class="sidebar-title" v-if="!sidebarCollapsed">AI+BIM</h2>
         </div>
-        <TButton
-          v-if="!sidebarCollapsed"
-          variant="text"
-          shape="circle"
-          size="small"
-          @click="toggleSidebar"
-          class="collapse-btn"
-        >
-          <TIcon name="chevron-left" />
-        </TButton>
+        <div class="header-actions">
+          <ThemeToggle v-if="!sidebarCollapsed" />
+          <TButton
+            v-if="!sidebarCollapsed"
+            variant="text"
+            shape="circle"
+            size="small"
+            @click="toggleSidebar"
+            class="collapse-btn"
+          >
+            <TIcon name="chevron-left" />
+          </TButton>
+        </div>
       </div>
 
       <!-- 新建对话按钮 -->
@@ -847,17 +856,30 @@ function handleFileSelect(event: Event) {
 /* 引入 Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
-/* CSS 变量 - 科技感配色方案 */
-:deep(.main-container) {
+/* ========================================
+   CSS 变量 - 主题配色方案
+   ======================================== */
+
+/* 深色主题 (默认) */
+:deep(.main-container),
+.main-container {
   --glass-bg: rgba(15, 23, 42, 0.75);
   --glass-border: rgba(59, 130, 246, 0.25);
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   --neon-blue: #3B82F6;
   --neon-violet: #8B5CF6;
   --neon-cyan: #06B6D4;
-  --text-primary: #FFFFFF;
-  --text-secondary: rgba(255, 255, 255, 0.85);
-  --text-muted: rgba(255, 255, 255, 0.6);
+}
+
+/* 浅色主题 */
+:root[data-theme="light"] :deep(.main-container),
+:root[data-theme="light"] .main-container {
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: #D9D9E3;
+  --glass-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --neon-blue: #10A37F;
+  --neon-violet: #3B82F6;
+  --neon-cyan: #06B6D4;
 }
 
 /* 主容器 */
@@ -868,6 +890,12 @@ function handleFileSelect(event: Event) {
   position: relative;
   font-family: 'DM Sans', -apple-system, sans-serif;
   background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #0F172A 100%);
+  transition: background 0.3s ease;
+}
+
+/* 浅色主题背景 */
+:root[data-theme="light"] .main-container {
+  background: #FFFFFF;
 }
 
 /* ========================================
@@ -971,6 +999,11 @@ function handleFileSelect(event: Event) {
   }
 }
 
+/* 浅色主题隐藏动态背景 */
+:root[data-theme="light"] .background-animation {
+  display: none;
+}
+
 /* ========================================
    玻璃态侧边栏
    ======================================== */
@@ -990,6 +1023,15 @@ function handleFileSelect(event: Event) {
   box-shadow:
     4px 0 32px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* 浅色主题侧边栏 */
+:root[data-theme="light"] .sidebar {
+  background: rgba(247, 247, 248, 0.9);
+  border-right: 1px solid #ECECF1;
+  box-shadow:
+    2px 0 8px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 /* 侧边栏光晕效果 */
@@ -1075,6 +1117,17 @@ function handleFileSelect(event: Event) {
   z-index: 1;
 }
 
+/* 浅色主题侧边栏头部 */
+:root[data-theme="light"] .sidebar-header {
+  border-bottom: 1px solid #ECECF1;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .logo-container {
   display: flex;
   align-items: center;
@@ -1116,11 +1169,27 @@ function handleFileSelect(event: Event) {
   filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.3));
 }
 
+/* 浅色主题侧边栏标题 */
+:root[data-theme="light"] .sidebar-title {
+  background: linear-gradient(135deg, #10A37F 0%, #3B82F6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: none;
+}
+
 .collapse-btn {
   color: var(--text-secondary) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 浅色主题折叠按钮 */
+:root[data-theme="light"] .collapse-btn {
+  color: #6E6E80 !important;
+  background: transparent !important;
+  border: none !important;
 }
 
 .collapse-btn:hover {
@@ -1329,6 +1398,12 @@ function handleFileSelect(event: Event) {
     0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
+/* 浅色主题欢迎标题 */
+:root[data-theme="light"] .welcome-title {
+  color: #2D333A;
+  text-shadow: none;
+}
+
 .gradient-text {
   background: linear-gradient(135deg, #60A5FA 0%, #A78BFA 50%, #22D3EE 100%);
   -webkit-background-clip: text;
@@ -1337,6 +1412,15 @@ function handleFileSelect(event: Event) {
   position: relative;
   display: inline-block;
   filter: drop-shadow(0 0 30px rgba(96, 165, 250, 0.6));
+}
+
+/* 浅色主题渐变文字 */
+:root[data-theme="light"] .gradient-text {
+  background: linear-gradient(135deg, #10A37F 0%, #3B82F6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: none;
 }
 
 /* 渐变文字光晕效果 - 增强版 */
@@ -1356,12 +1440,18 @@ function handleFileSelect(event: Event) {
 
 .welcome-subtitle {
   font-size: 1.25rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.95);
   margin: 0 auto;
   max-width: 600px;
   line-height: 1.8;
   font-weight: 400;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* 浅色主题副标题 */
+:root[data-theme="light"] .welcome-subtitle {
+  color: var(--text-primary);
+  text-shadow: none;
 }
 
 /* ========================================
@@ -1377,17 +1467,17 @@ function handleFileSelect(event: Event) {
 }
 
 .example-card {
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(59, 130, 246, 0.15);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: 20px;
   padding: 36px 28px;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  border: 1px solid rgba(59, 130, 246, 0.3);
   box-shadow:
-    0 4px 24px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 4px 24px rgba(59, 130, 246, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1395,6 +1485,15 @@ function handleFileSelect(event: Event) {
   gap: 20px;
   position: relative;
   overflow: hidden;
+}
+
+/* 浅色主题卡片 */
+:root[data-theme="light"] .example-card {
+  background: #FFFFFF;
+  border: 2px solid var(--brand);
+  box-shadow:
+    0 4px 16px rgba(59, 130, 246, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 /* 卡片光晕效果 */
@@ -1430,11 +1529,20 @@ function handleFileSelect(event: Event) {
 
 .example-card:hover {
   transform: translateY(-12px) scale(1.02);
-  border-color: rgba(59, 130, 246, 0.5);
+  border-color: rgba(59, 130, 246, 0.6);
   box-shadow:
-    0 20px 50px rgba(59, 130, 246, 0.25),
-    0 0 30px rgba(59, 130, 246, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 20px 50px rgba(59, 130, 246, 0.3),
+    0 0 40px rgba(59, 130, 246, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* 浅色主题卡片 hover */
+:root[data-theme="light"] .example-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: var(--brand-hover);
+  box-shadow:
+    0 12px 32px rgba(59, 130, 246, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
 }
 
 .example-card:hover::before {
@@ -1490,8 +1598,13 @@ function handleFileSelect(event: Event) {
   line-height: 1.7;
   font-weight: 500;
   position: relative;
+}
+
+/* 浅色主题卡片标题 */
+:root[data-theme="light"] .example-card h3 {
+  color: var(--text-primary);
   z-index: 1;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  text-shadow: none;
 }
 
 /* 删除重复的旧样式 - 已被新的玻璃态样式替代 */
@@ -1555,6 +1668,15 @@ function handleFileSelect(event: Event) {
   max-width: 100% !important;
 }
 
+/* 浅色主题 ChatSender 容器 */
+:root[data-theme="light"] .welcome-page .chat-sender-container {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ECECF1;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
 /* ========================================
    科技感输入框样式
    ======================================== */
@@ -1574,12 +1696,29 @@ function handleFileSelect(event: Event) {
   max-width: none !important;
 }
 
+/* 浅色主题输入框 */
+:root[data-theme="light"] :deep(.t-chat-sender) {
+  background: #FFFFFF !important;
+  border: 1px solid #D9D9E3 !important;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
 :deep(.t-chat-sender:hover) {
   border-color: rgba(59, 130, 246, 0.4) !important;
   box-shadow:
     0 6px 20px rgba(59, 130, 246, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
   transform: translateY(-2px) !important;
+}
+
+/* 浅色主题输入框 hover */
+:root[data-theme="light"] :deep(.t-chat-sender:hover) {
+  border-color: #C4C4CF !important;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
 }
 
 :deep(.t-chat-sender--focused) {
@@ -1589,6 +1728,14 @@ function handleFileSelect(event: Event) {
     0 0 20px rgba(59, 130, 246, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
   transform: translateY(-2px) !important;
+}
+
+/* 浅色主题输入框聚焦 */
+:root[data-theme="light"] :deep(.t-chat-sender--focused) {
+  border-color: #10A37F !important;
+  box-shadow:
+    0 4px 12px rgba(16, 163, 127, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
 }
 
 /* 输入区域样式 */
@@ -1603,6 +1750,11 @@ function handleFileSelect(event: Event) {
   background: transparent !important;
 }
 
+/* 浅色主题输入文字 */
+:root[data-theme="light"] :deep(.t-chat-sender__input) {
+  color: #2D333A !important;
+}
+
 /* 直接覆盖内部 textarea 元素 */
 :deep(.t-chat-sender__input textarea) {
   min-height: 100px !important;
@@ -1615,6 +1767,21 @@ function handleFileSelect(event: Event) {
 
 :deep(.t-chat-sender__input::placeholder) {
   color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* 浅色主题 placeholder */
+:root[data-theme="light"] :deep(.t-chat-sender__input::placeholder) {
+  color: #8E8EA0 !important;
+}
+
+/* 浅色主题输入区域 */
+:root[data-theme="light"] .chat-area .input-section,
+:root[data-theme="light"] .chat-and-preview-layout .input-section {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid #ECECF1 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
 }
 
 :deep(.t-chat-sender__prefix) {
@@ -1653,6 +1820,13 @@ function handleFileSelect(event: Event) {
   border-radius: 12px !important;
 }
 
+/* 浅色主题上传按钮 */
+:root[data-theme="light"] :deep(.upload-btn) {
+  color: #6E6E80 !important;
+  background: #F7F7F8 !important;
+  border: 1px solid #D9D9E3 !important;
+}
+
 :deep(.upload-btn:hover) {
   color: #06B6D4 !important;
   background: rgba(6, 182, 212, 0.2) !important;
@@ -1661,11 +1835,26 @@ function handleFileSelect(event: Event) {
   transform: translateY(-2px) !important;
 }
 
+/* 浅色主题上传按钮 hover */
+:root[data-theme="light"] :deep(.upload-btn:hover) {
+  color: #10A37F !important;
+  background: #ECECF1 !important;
+  border-color: #10A37F !important;
+  box-shadow: none !important;
+}
+
 :deep(.upload-btn:disabled) {
   color: rgba(255, 255, 255, 0.4) !important;
   background: rgba(255, 255, 255, 0.08) !important;
   border-color: rgba(255, 255, 255, 0.15) !important;
   opacity: 0.6 !important;
+}
+
+/* 浅色主题禁用上传按钮 */
+:root[data-theme="light"] :deep(.upload-btn:disabled) {
+  color: #C4C4CF !important;
+  background: #F7F7F8 !important;
+  border-color: #ECECF1 !important;
 }
 
 /* 发送按钮样式 - 霓虹效果 */
@@ -1682,6 +1871,13 @@ function handleFileSelect(event: Event) {
   align-items: center !important;
   justify-content: center !important;
   border-radius: 12px !important;
+}
+
+/* 浅色主题发送按钮 */
+:root[data-theme="light"] :deep(.send-btn) {
+  background: #10A37F !important;
+  border: 1px solid #0D8A6A !important;
+  box-shadow: 0 2px 8px rgba(16, 163, 127, 0.2) !important;
 }
 
 :deep(.send-btn:hover:not(:disabled)) {
@@ -1893,12 +2089,27 @@ function handleFileSelect(event: Event) {
   backdrop-filter: blur(10px);
 }
 
+/* 浅色主题对话项 */
+:root[data-theme="light"] .conversation-item {
+  color: #2D333A;
+  background: transparent;
+  border: 1px solid transparent;
+}
+
 .conversation-item:hover {
   background: rgba(59, 130, 246, 0.15);
   color: var(--text-primary);
   border-color: rgba(59, 130, 246, 0.3);
   transform: translateX(4px);
   box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+/* 浅色主题对话项 hover */
+:root[data-theme="light"] .conversation-item:hover {
+  background: #ECECF1;
+  color: #2D333A;
+  border-color: #ECECF1;
+  box-shadow: none;
 }
 
 .conversation-item.active {
@@ -1908,6 +2119,14 @@ function handleFileSelect(event: Event) {
   box-shadow:
     0 0 25px rgba(59, 130, 246, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* 浅色主题活动对话项 */
+:root[data-theme="light"] .conversation-item.active {
+  background: #ECECF1;
+  color: #2D333A;
+  border: 1px solid #ECECF1;
+  box-shadow: none;
 }
 
 /* 会话项霓虹边框效果 */
@@ -1954,6 +2173,15 @@ function handleFileSelect(event: Event) {
   font-size: 12px;
   margin: 0;
   color: rgba(255, 255, 255, 0.6);
+}
+
+/* 浅色主题对话标题和时间 */
+:root[data-theme="light"] .conversation-title {
+  color: var(--text-primary);
+}
+
+:root[data-theme="light"] .conversation-time {
+  color: var(--text-muted);
 }
 
 /* 删除按钮样式 */
@@ -2077,6 +2305,19 @@ function handleFileSelect(event: Event) {
   background: rgba(59, 130, 246, 0.5);
 }
 
+/* 浅色主题滚动条 */
+:root[data-theme="light"] .chat-container::-webkit-scrollbar-track {
+  background: #F7F7F8;
+}
+
+:root[data-theme="light"] .chat-container::-webkit-scrollbar-thumb {
+  background: #D9D9E3;
+}
+
+:root[data-theme="light"] .chat-container::-webkit-scrollbar-thumb:hover {
+  background: #C4C4CF;
+}
+
 .chat-messages {
   max-width: 1500px;
   margin: 0 auto;
@@ -2128,6 +2369,16 @@ function handleFileSelect(event: Event) {
   border: 1px solid rgba(59, 130, 246, 0.3) !important;
 }
 
+/* 浅色主题 AI 消息 */
+:root[data-theme="light"] .message-ai .message-content {
+  background: #F7F7F8 !important;
+  color: #2D333A !important;
+  border: 1px solid #ECECF1 !important;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
+}
+
 /* 用户消息 - 右侧对齐，玻璃态效果 */
 .message-user {
   justify-content: flex-end;
@@ -2148,6 +2399,16 @@ function handleFileSelect(event: Event) {
     0 4px 16px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
   border: 1px solid rgba(59, 130, 246, 0.2) !important;
+}
+
+/* 浅色主题用户消息 */
+:root[data-theme="light"] .message-user .message-content {
+  background: #3B82F6 !important;
+  color: white !important;
+  border: 1px solid #2563EB !important;
+  box-shadow:
+    0 2px 8px rgba(59, 130, 246, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
 }
 
 /* ========================================
@@ -2253,6 +2514,64 @@ function handleFileSelect(event: Event) {
   word-wrap: break-word;
   white-space: pre-wrap;
   color: rgba(255, 255, 255, 0.95);
+}
+
+/* 浅色主题消息文字 */
+:root[data-theme="light"] .message-text {
+  color: var(--text-primary);
+}
+
+/* 浅色主题 Markdown 样式 */
+:root[data-theme="light"] .message-text :deep(code) {
+  background: #F1F5F9;
+  color: #0F172A;
+  border: 1px solid #E2E8F0;
+}
+
+:root[data-theme="light"] .message-text :deep(pre) {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+}
+
+:root[data-theme="light"] .message-text :deep(pre code) {
+  color: #334155;
+}
+
+:root[data-theme="light"] .message-text :deep(a) {
+  color: var(--brand);
+  border-bottom-color: var(--brand);
+}
+
+:root[data-theme="light"] .message-text :deep(h1),
+:root[data-theme="light"] .message-text :deep(h2),
+:root[data-theme="light"] .message-text :deep(h3) {
+  color: var(--text-primary);
+}
+
+:root[data-theme="light"] .message-text :deep(strong) {
+  color: var(--text-primary);
+}
+
+:root[data-theme="light"] .message-text :deep(em) {
+  color: var(--text-secondary);
+}
+
+:root[data-theme="light"] .message-text :deep(blockquote) {
+  border-left-color: var(--brand);
+  color: var(--text-secondary);
+}
+
+:root[data-theme="light"] .message-text :deep(th) {
+  background: #F1F5F9;
+  color: var(--text-primary);
+}
+
+:root[data-theme="light"] .message-text :deep(td) {
+  border-color: #E2E8F0;
+}
+
+:root[data-theme="light"] .message-text :deep(hr) {
+  background: #E2E8F0;
 }
 
 /* Markdown 样式 - 代码块 */
@@ -2382,6 +2701,12 @@ function handleFileSelect(event: Event) {
 .message-ai .message-time {
   text-align: left;
   color: rgba(255, 255, 255, 0.8);
+}
+
+/* 浅色主题消息时间 */
+:root[data-theme="light"] .message-user .message-time,
+:root[data-theme="light"] .message-ai .message-time {
+  color: var(--text-muted);
 }
 
 /* 消息内容包装器 */

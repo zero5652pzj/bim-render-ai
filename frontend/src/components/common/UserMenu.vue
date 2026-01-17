@@ -159,14 +159,16 @@ function goToSettings() {
   padding: 12px 16px;
   border-radius: 8px;
   transition: all 0.2s ease;
-  background: rgba(59, 130, 246, 0.1) !important;
-  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  background: var(--brand) !important;
+  border: 1px solid var(--brand) !important;
   color: white !important;
+  opacity: 0.9;
 }
 
 .login-button:hover {
-  background: rgba(59, 130, 246, 0.2) !important;
-  border-color: rgba(59, 130, 246, 0.5) !important;
+  background: var(--brand-hover) !important;
+  border-color: var(--brand-hover) !important;
+  opacity: 1;
   transform: translateY(-1px);
 }
 
@@ -310,5 +312,57 @@ function goToSettings() {
 
 .dropdown-item .t-icon {
   font-size: 16px;
+}
+
+/* ========================================
+   浅色主题适配
+   ======================================== */
+:root[data-theme="light"] .user-button {
+  color: var(--text-primary);
+}
+
+:root[data-theme="light"] .user-name {
+  color: var(--text-primary);
+}
+
+:root[data-theme="light"] .chevron-icon {
+  color: var(--text-muted);
+}
+
+:root[data-theme="light"] :deep(.t-avatar) {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme="light"] .user-button:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+:root[data-theme="light"] .user-button:hover :deep(.t-avatar) {
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+:root[data-theme="light"] .dropdown-menu {
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid #ECECF1;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme="light"] .dropdown-item {
+  color: var(--text-primary);
+}
+
+:root[data-theme="light"] .dropdown-item:hover {
+  background: #F7F7F8;
+  color: var(--text-primary);
+}
+
+:root[data-theme="light"] .dropdown-item-danger {
+  border-top: 1px solid #ECECF1;
+  color: #EF4444;
+}
+
+:root[data-theme="light"] .dropdown-item-danger:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #DC2626;
 }
 </style>

@@ -645,6 +645,169 @@ function getContentColor(type: string) {
 }
 
 /* ========================================
+   浅色主题适配
+   ======================================== */
+:root[data-theme="light"] .preview-area {
+  --text-primary: #2D333A;
+  --text-secondary: #6E6E80;
+  --text-muted: #8E8EA0;
+  background: rgba(255, 255, 255, 0.95);
+  border-left: 1px solid #ECECF1;
+  box-shadow:
+    -2px 0 16px rgba(0, 0, 0, 0.08),
+    inset 1px 0 0 rgba(255, 255, 255, 0.8);
+}
+
+:root[data-theme="light"] .preview-area::before {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(59, 130, 246, 0.3) 20%,
+    rgba(59, 130, 246, 0.3) 50%,
+    rgba(59, 130, 246, 0.3) 80%,
+    transparent 100%
+  );
+  animation: none;
+}
+
+:root[data-theme="light"] .preview-header {
+  background: rgba(247, 247, 248, 0.95);
+  border-bottom: 1px solid #ECECF1;
+}
+
+:root[data-theme="light"] .preview-title {
+  color: var(--text-primary);
+  text-shadow: none;
+}
+
+:root[data-theme="light"] .preview-title :deep(.t-icon) {
+  filter: none;
+}
+
+:root[data-theme="light"] .preview-actions :deep(.t-button) {
+  color: var(--text-secondary) !important;
+  background: #FFFFFF !important;
+  border: 1px solid #D9D9E3 !important;
+}
+
+:root[data-theme="light"] .preview-actions :deep(.t-button:hover) {
+  color: var(--brand) !important;
+  background: #F7F7F8 !important;
+  border-color: var(--brand) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-1px) !important;
+}
+
+:root[data-theme="light"] .preview-content-list {
+  border-bottom: 1px solid #ECECF1;
+}
+
+:root[data-theme="light"] .preview-content-list::-webkit-scrollbar-track {
+  background: #F7F7F8;
+}
+
+:root[data-theme="light"] .preview-content-list::-webkit-scrollbar-thumb {
+  background: #D9D9E3;
+}
+
+:root[data-theme="light"] .preview-content-list::-webkit-scrollbar-thumb:hover {
+  background: #C4C4CF;
+}
+
+:root[data-theme="light"] .preview-content-item {
+  background: #FFFFFF;
+  border: 1px solid #ECECF1;
+}
+
+:root[data-theme="light"] .preview-content-item:hover {
+  background: #F7F7F8;
+  border-color: var(--brand);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:root[data-theme="light"] .preview-content-item.active {
+  background: rgba(59, 130, 246, 0.06);
+  border-color: var(--brand);
+  box-shadow: 0 0 0 1px var(--brand);
+}
+
+:root[data-theme="light"] .preview-content-item.active::after {
+  background: var(--brand);
+  box-shadow: none;
+}
+
+:root[data-theme="light"] .content-icon {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid #ECECF1;
+}
+
+:root[data-theme="light"] .content-icon :deep(.t-icon) {
+  filter: none;
+}
+
+:root[data-theme="light"] .content-display-header {
+  border-bottom: 1px solid #ECECF1;
+}
+
+:root[data-theme="light"] .display-title {
+  color: var(--text-primary);
+  text-shadow: none;
+}
+
+:root[data-theme="light"] .pdf-placeholder,
+:root[data-theme="light"] .image-placeholder,
+:root[data-theme="light"] .web-placeholder {
+  background: #F7F7F8;
+  border: 1px solid #ECECF1;
+}
+
+:root[data-theme="light"] .pdf-placeholder :deep(.t-icon),
+:root[data-theme="light"] .image-placeholder :deep(.t-icon),
+:root[data-theme="light"] .web-placeholder :deep(.t-icon) {
+  filter: none;
+}
+
+:root[data-theme="light"] .preview-display::-webkit-scrollbar-track {
+  background: #F7F7F8;
+}
+
+:root[data-theme="light"] .preview-display::-webkit-scrollbar-thumb {
+  background: #D9D9E3;
+}
+
+:root[data-theme="light"] .preview-display::-webkit-scrollbar-thumb:hover {
+  background: #C4C4CF;
+}
+
+:root[data-theme="light"] .empty-icon {
+  filter: none;
+  animation: none;
+}
+
+:root[data-theme="light"] .empty-title {
+  color: var(--text-primary);
+  text-shadow: none;
+}
+
+:root[data-theme="light"] .empty-description {
+  color: var(--text-secondary);
+}
+
+:root[data-theme="light"] .hint-item {
+  background: #FFFFFF;
+  border: 1px solid #ECECF1;
+}
+
+:root[data-theme="light"] .hint-item:hover {
+  background: #F7F7F8;
+  border-color: var(--brand);
+}
+
+:root[data-theme="light"] .hint-item :deep(.t-icon) {
+  filter: none;
+}
+
+/* ========================================
    科技感响应式适配
    ======================================== */
 @media (max-width: 768px) {
