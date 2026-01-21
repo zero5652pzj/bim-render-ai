@@ -40,6 +40,15 @@ export const darkTheme: ThemeConfig = {
 
     // 阴影
     shadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+
+    // 玻璃态
+    glassBorder: 'rgba(59, 130, 246, 0.25)',
+    glassShadow: '0 8px 32px rgba(0, 0, 0, 0.5)',
+
+    // 霓虹/装饰色
+    neonBlue: '#3B82F6',
+    neonViolet: '#8B5CF6',
+    neonCyan: '#06B6D4',
   },
 }
 
@@ -78,6 +87,15 @@ export const lightTheme: ThemeConfig = {
 
     // 阴影
     shadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+
+    // 玻璃态
+    glassBorder: '#D9D9E3',
+    glassShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+
+    // 霓虹/装饰色 - 浅色模式下调整为更适合的颜色
+    neonBlue: '#10A37F',
+    neonViolet: '#3B82F6',
+    neonCyan: '#06B6D4',
   },
 }
 

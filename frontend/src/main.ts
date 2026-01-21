@@ -7,11 +7,16 @@ import App from './App.vue'
 import TDesign from 'tdesign-vue-next'
 import 'tdesign-vue-next/es/style/index.css'
 
+// Highlight.js styles
+import 'highlight.js/styles/github.css'
+
 // 全局样式
 import './assets/styles/main.css'
 
 // 认证 Store
 import { useAuthStore } from '@/stores/auth'
+// 主题 Store
+import { useThemeStore } from '@/stores/theme'
 
 const app = createApp(App)
 
@@ -20,6 +25,10 @@ app.use(router)
 app.use(TDesign)
 
 app.mount('#app')
+
+// 初始化主题（必须在 mount 之后调用，因为需要访问 DOM）
+const themeStore = useThemeStore()
+themeStore.initialize()
 
 // 页面卸载时清理认证状态
 window.addEventListener('beforeunload', () => {

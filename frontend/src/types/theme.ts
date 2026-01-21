@@ -33,6 +33,15 @@ export interface ThemeColors {
 
   // 阴影
   shadow: string
+
+  // 玻璃态
+  glassBorder: string
+  glassShadow: string
+
+  // 霓虹/装饰色
+  neonBlue: string
+  neonViolet: string
+  neonCyan: string
 }
 
 export interface ThemeConfig {
