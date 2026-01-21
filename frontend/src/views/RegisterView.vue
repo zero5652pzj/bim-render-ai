@@ -341,6 +341,9 @@ async function handleRegister() {
   position: relative;
   padding: 2rem 1rem;
   overflow: hidden;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* 动态背景 */
@@ -362,12 +365,12 @@ async function handleRegister() {
   bottom: -50%;
   background: radial-gradient(
     circle at 30% 40%,
-    rgba(59, 130, 246, 0.15) 0%,
+    color-mix(in srgb, var(--neon-blue) 15%, transparent) 0%,
     transparent 50%
   ),
   radial-gradient(
     circle at 70% 60%,
-    rgba(139, 92, 246, 0.15) 0%,
+    color-mix(in srgb, var(--neon-violet) 15%, transparent) 0%,
     transparent 50%
   );
   animation: gradient-shift 15s ease-in-out infinite;
@@ -389,8 +392,8 @@ async function handleRegister() {
   right: 0;
   bottom: 0;
   background-image:
-    linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+    linear-gradient(color-mix(in srgb, var(--neon-blue) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--neon-blue) 5%, transparent) 1px, transparent 1px);
   background-size: 50px 50px;
   animation: grid-move 20s linear infinite;
 }
@@ -416,7 +419,8 @@ async function handleRegister() {
   position: absolute;
   width: 4px;
   height: 4px;
-  background: rgba(59, 130, 246, 0.3);
+  background: var(--neon-blue);
+  opacity: 0.3;
   border-radius: 50%;
   animation: float infinite ease-in-out;
 }
@@ -428,7 +432,7 @@ async function handleRegister() {
   }
   50% {
     transform: translateY(-20px) translateX(10px);
-    opacity: 1;
+    opacity: 0.8;
   }
 }
 
@@ -477,7 +481,7 @@ async function handleRegister() {
 .logo-title {
   font-size: 2.5rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+  background: linear-gradient(135deg, var(--neon-blue) 0%, var(--neon-violet) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -487,22 +491,21 @@ async function handleRegister() {
 
 .logo-subtitle {
   font-size: 1rem;
-  color: #64748b;
+  color: var(--text-secondary);
   margin: 0;
   font-weight: 500;
 }
 
 /* 注册卡片 */
 .register-card {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--bg-glass);
   backdrop-filter: blur(20px);
   border-radius: 24px;
   padding: 2.5rem;
-  box-shadow:
-    0 20px 60px rgba(59, 130, 246, 0.1),
-    0 8px 20px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--glass-border);
   animation: fade-in-up 0.6s ease-out 0.2s backwards;
+  transition: all 0.3s ease;
 }
 
 .card-header {
@@ -513,21 +516,21 @@ async function handleRegister() {
 .card-title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary);
   margin: 0 0 0.5rem 0;
   letter-spacing: -0.01em;
 }
 
 .card-description {
   font-size: 0.95rem;
-  color: #64748b;
+  color: var(--text-secondary);
   margin: 0;
 }
 
 /* 注册类型切换 */
 .type-switch {
   display: flex;
-  background: #f1f5f9;
+  background: var(--bg-tertiary);
   padding: 4px;
   border-radius: 12px;
   margin-bottom: 1.5rem;
@@ -541,15 +544,15 @@ async function handleRegister() {
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .switch-btn.active {
-  background: white;
-  color: #3B82F6;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background: var(--bg-primary);
+  color: var(--brand);
+  box-shadow: var(--shadow);
 }
 
 /* 错误提示 */
@@ -558,10 +561,10 @@ async function handleRegister() {
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: color-mix(in srgb, var(--error) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--error) 20%, transparent);
   border-radius: 12px;
-  color: #dc2626;
+  color: var(--error);
   font-size: 0.875rem;
   margin-bottom: 1.5rem;
 }
@@ -588,32 +591,32 @@ async function handleRegister() {
 .form-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #334155;
+  color: var(--text-primary);
 }
 
 .input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
-  border: 2px solid #e2e8f0;
+  border: 2px solid var(--border);
   border-radius: 12px;
-  background: white;
+  background: var(--bg-tertiary);
   transition: all 0.2s ease;
 }
 
 .input-wrapper:focus-within {
-  border-color: #3B82F6;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  border-color: var(--brand);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand) 10%, transparent);
 }
 
 .input-wrapper.error {
-  border-color: #ef4444;
+  border-color: var(--error);
 }
 
 .input-icon {
   width: 20px;
   height: 20px;
-  color: #94a3b8;
+  color: var(--text-muted);
   margin-left: 0.75rem;
   flex-shrink: 0;
 }
@@ -624,16 +627,16 @@ async function handleRegister() {
   outline: none;
   padding: 0.875rem 1rem;
   font-size: 1rem;
-  color: #0f172a;
+  color: var(--text-primary);
   background: transparent;
 }
 
 .form-input::placeholder {
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .error-text {
-  color: #dc2626;
+  color: var(--error);
   font-size: 0.8rem;
   margin: 0;
 }
@@ -642,8 +645,8 @@ async function handleRegister() {
 .register-button {
   width: 100%;
   padding: 1rem;
-  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-hover) 100%);
+  color: #FFFFFF;
   border: none;
   border-radius: 12px;
   font-size: 1rem;
@@ -672,7 +675,7 @@ async function handleRegister() {
 
 .register-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--brand) 30%, transparent);
 }
 
 .register-button:active:not(:disabled) {
@@ -717,14 +720,14 @@ async function handleRegister() {
 
 .footer-text {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-secondary);
   margin: 0;
 }
 
 .link-button {
   background: none;
   border: none;
-  color: #3B82F6;
+  color: var(--brand);
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
@@ -734,7 +737,7 @@ async function handleRegister() {
 }
 
 .link-button:hover {
-  color: #2563EB;
+  color: var(--brand-hover);
   text-decoration: underline;
 }
 

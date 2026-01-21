@@ -78,7 +78,7 @@ async function handleLogin() {
 
       // 等待认证状态更新后再跳转
       let attempts = 0
-      const maxAttempts = 50 // 最多等待5秒 (50 * 100ms)
+      const maxAttempts = 50 // 最多等待5秒
 
       const checkAuth = () => {
         if (authStore.isAuthenticated) {
@@ -94,7 +94,6 @@ async function handleLogin() {
         }
       }
 
-      // 开始检查认证状态
       checkAuth()
     } else {
       error.value = result.error || '登录失败，请检查邮箱和密码'
@@ -106,7 +105,6 @@ async function handleLogin() {
   }
 }
 
-// 处理键盘事件
 function handleKeydown(event: KeyboardEvent) {
   if (event.key === 'Enter' && isFormValid.value) {
     handleLogin()
@@ -115,143 +113,97 @@ function handleKeydown(event: KeyboardEvent) {
 </script>
 
 <template>
-  <div class="login-container">
-    <!-- 动态背景 -->
-    <div class="bg-animation">
-      <div class="bg-gradient"></div>
-      <div class="bg-grid"></div>
-      <div class="bg-particles">
-        <div v-for="i in 20" :key="i" class="particle" :style="{
-          left: Math.random() * 100 + '%',
-          animationDelay: Math.random() * 2 + 's',
-          animationDuration: (Math.random() * 3 + 2) + 's'
-        }"></div>
-      </div>
+  <div class="login-page">
+    <!-- 极光背景 -->
+    <div class="aurora-bg">
+      <div class="aurora-blob blob-1"></div>
+      <div class="aurora-blob blob-2"></div>
+      <div class="aurora-blob blob-3"></div>
+      <div class="noise-overlay"></div>
     </div>
 
-    <div class="login-content">
-      <!-- Logo 区域 -->
-      <div class="logo-section">
-        <div class="logo-icon">
-          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
-                <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
-              </linearGradient>
-            </defs>
-            <path d="M50 10 L90 30 L90 70 L50 90 L10 70 L10 30 Z" fill="url(#logoGradient)" opacity="0.2"/>
-            <path d="M50 20 L80 35 L80 65 L50 80 L20 65 L20 35 Z" fill="url(#logoGradient)"/>
-            <circle cx="50" cy="50" r="15" fill="white" opacity="0.9"/>
+    <div class="login-wrapper">
+      <!-- 头部 Logo -->
+      <div class="brand-section">
+        <div class="logo-box">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo-svg">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <h1 class="logo-title">AI+BIM</h1>
-        <p class="logo-subtitle">智能 BIM 建模平台</p>
+        <div class="brand-text">
+          <h1>AI+BIM</h1>
+          <p>Next Gen Modeling</p>
+        </div>
       </div>
 
       <!-- 登录卡片 -->
       <div class="login-card">
-        <div class="card-header">
-          <h2 class="card-title">欢迎回来</h2>
-          <p class="card-description">登录您的账户以继续使用</p>
-        </div>
-
-        <!-- 错误提示 -->
-        <Transition name="fade-slide">
-          <div v-if="error" class="error-banner">
-            <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <circle cx="12" cy="12" r="10" stroke-width="2"/>
-              <line x1="12" y1="8" x2="12" y2="12" stroke-width="2"/>
-              <circle cx="12" cy="16" r="1" fill="currentColor"/>
-            </svg>
-            <span>{{ error }}</span>
+        <div class="card-content">
+          <div class="header">
+            <h2>Welcome Back</h2>
+            <p>登录以继续您的创作</p>
           </div>
-        </Transition>
 
-        <!-- 登录表单 -->
-        <form @submit.prevent="handleLogin" class="login-form">
-          <!-- 邮箱输入 -->
-          <div class="form-group">
-            <label for="email" class="form-label">邮箱</label>
-            <div class="input-wrapper" :class="{ 'error': emailError }">
-              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke-width="2"/>
-                <polyline points="22,6 12,13 2,6" stroke-width="2"/>
-              </svg>
-              <input
-                id="email"
-                v-model="formData.email"
-                type="email"
-                class="form-input"
-                :class="{ 'has-value': formData.email }"
-                placeholder="请输入邮箱地址"
-                @blur="validateEmail"
-                @keydown="handleKeydown"
-                autocomplete="email"
-              />
+          <!-- 错误提示 -->
+          <Transition name="fade-slide">
+            <div v-if="error" class="error-alert">
+              <span class="icon">!</span>
+              <span>{{ error }}</span>
             </div>
-            <Transition name="fade-slide">
-              <p v-if="emailError" class="error-text">{{ emailError }}</p>
-            </Transition>
-          </div>
+          </Transition>
 
-          <!-- 密码输入 -->
-          <div class="form-group">
-            <label for="password" class="form-label">密码</label>
-            <div class="input-wrapper" :class="{ 'error': passwordError }">
-              <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke-width="2"/>
-                <circle cx="12" cy="16" r="1" stroke-width="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke-width="2"/>
-              </svg>
-              <input
-                id="password"
-                v-model="formData.password"
-                type="password"
-                class="form-input"
-                :class="{ 'has-value': formData.password }"
-                placeholder="请输入密码"
-                @blur="validatePassword"
-                @keydown="handleKeydown"
-                autocomplete="current-password"
-              />
-            </div>
-            <Transition name="fade-slide">
-              <p v-if="passwordError" class="error-text">{{ passwordError }}</p>
-            </Transition>
-          </div>
-
-          <!-- 登录按钮 -->
-          <button
-            type="submit"
-            class="login-button"
-            :disabled="loading || !isFormValid"
-          >
-            <Transition name="button-loading" mode="out-in">
-              <div v-if="loading" key="loading" class="button-content">
-                <svg class="spinner" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.3"/>
-                  <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="4" class="spinner-path"/>
-                </svg>
-                <span>登录中...</span>
+          <form @submit.prevent="handleLogin" class="form-stack">
+            <!-- 邮箱 -->
+            <div class="input-group">
+              <label for="email">邮箱地址</label>
+              <div class="input-field" :class="{ 'has-error': emailError }">
+                <input
+                  id="email"
+                  v-model="formData.email"
+                  type="email"
+                  placeholder="name@example.com"
+                  @blur="validateEmail"
+                  @keydown="handleKeydown"
+                  autocomplete="email"
+                />
               </div>
-              <span v-else key="text">登录</span>
-            </Transition>
-          </button>
-        </form>
+              <span v-if="emailError" class="field-error">{{ emailError }}</span>
+            </div>
 
-        <!-- 底部链接 -->
-        <div class="card-footer">
-          <p class="footer-text">
-            还没有账户？
+            <!-- 密码 -->
+            <div class="input-group">
+              <label for="password">密码</label>
+              <div class="input-field" :class="{ 'has-error': passwordError }">
+                <input
+                  id="password"
+                  v-model="formData.password"
+                  type="password"
+                  placeholder="••••••••"
+                  @blur="validatePassword"
+                  @keydown="handleKeydown"
+                  autocomplete="current-password"
+                />
+              </div>
+              <span v-if="passwordError" class="field-error">{{ passwordError }}</span>
+            </div>
+
+            <!-- 按钮 -->
             <button
-              type="button"
-              class="link-button"
-              @click="router.push('/register')"
+              type="submit"
+              class="submit-btn"
+              :disabled="loading || !isFormValid"
             >
-              立即注册
+              <span v-if="loading" class="spinner"></span>
+              <span v-else>登 录</span>
             </button>
-          </p>
+          </form>
+
+          <div class="footer-links">
+            <span>还没有账号?</span>
+            <a @click="router.push('/register')" class="register-link">立即注册</a>
+          </div>
         </div>
       </div>
     </div>
@@ -259,434 +211,327 @@ function handleKeydown(event: KeyboardEvent) {
 </template>
 
 <style scoped>
-/* 容器 */
-.login-container {
+/* 页面容器 */
+.login-page {
+  position: relative;
   min-height: 100vh;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  padding: 2rem 1rem;
-  overflow: hidden;
+  background-color: #f8fafc; /* Light Fallback */
+  color: #1e293b; /* Dark text */
+  overflow-y: auto;
+  overflow-x: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* 动态背景 */
-.bg-animation {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
+/* 极光背景 - 浅色版 */
+.aurora-bg {
+  position: fixed;
+  inset: 0;
   z-index: 0;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, #f0f9ff 0%, #e0f2fe 100%);
 }
 
-.bg-gradient {
+.aurora-blob {
   position: absolute;
-  top: -50%;
-  left: -50%;
-  right: -50%;
-  bottom: -50%;
-  background: radial-gradient(
-    circle at 30% 40%,
-    rgba(59, 130, 246, 0.15) 0%,
-    transparent 50%
-  ),
-  radial-gradient(
-    circle at 70% 60%,
-    rgba(139, 92, 246, 0.15) 0%,
-    transparent 50%
-  );
-  animation: gradient-shift 15s ease-in-out infinite;
-}
-
-@keyframes gradient-shift {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  50% {
-    transform: translate(5%, 5%) rotate(180deg);
-  }
-}
-
-.bg-grid {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
-  background-size: 50px 50px;
-  animation: grid-move 20s linear infinite;
-}
-
-@keyframes grid-move {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(50px, 50px);
-  }
-}
-
-.bg-particles {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-.particle {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: rgba(59, 130, 246, 0.3);
+  filter: blur(80px);
   border-radius: 50%;
-  animation: float infinite ease-in-out;
+  opacity: 0.5;
+  animation: float 20s infinite ease-in-out;
+}
+
+.blob-1 {
+  width: 60vw;
+  height: 60vw;
+  background: #bae6fd; /* Light Blue */
+  top: -20%;
+  left: -10%;
+  animation-delay: 0s;
+}
+
+.blob-2 {
+  width: 50vw;
+  height: 50vw;
+  background: #ddd6fe; /* Light Violet */
+  bottom: -10%;
+  right: -10%;
+  animation-delay: -5s;
+}
+
+.blob-3 {
+  width: 40vw;
+  height: 40vw;
+  background: #bfdbfe; /* Blue */
+  top: 40%;
+  left: 40%;
+  animation-delay: -10s;
+}
+
+.noise-overlay {
+  position: absolute;
+  inset: 0;
+  opacity: 0.4; /* Slightly more visible on light */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  mix-blend-mode: overlay;
 }
 
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0) translateX(0);
-    opacity: 0;
-  }
-  50% {
-    transform: translateY(-20px) translateX(10px);
-    opacity: 1;
-  }
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
 }
 
-/* 主内容 */
-.login-content {
-  width: 100%;
-  max-width: 420px;
+/* 登录主体 */
+.login-wrapper {
   position: relative;
-  z-index: 1;
+  z-index: 10;
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
-/* Logo 区域 */
-.logo-section {
+/* 品牌区 */
+.brand-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  margin-bottom: 3rem;
-  animation: fade-in-up 0.6s ease-out;
+  gap: 1rem;
 }
 
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.logo-box {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);
+  color: white;
 }
 
-.logo-icon {
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 1.5rem;
-  animation: logo-float 3s ease-in-out infinite;
+.logo-svg {
+  width: 32px;
+  height: 32px;
 }
 
-@keyframes logo-float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.logo-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%);
+.brand-text h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(to right, #1e293b, #475569); /* Dark gradient text */
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin: 0 0 0.5rem 0;
-  letter-spacing: -0.02em;
 }
 
-.logo-subtitle {
-  font-size: 1rem;
+.brand-text p {
   color: #64748b;
-  margin: 0;
-  font-weight: 500;
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-/* 登录卡片 */
+/* 卡片样式 - 浅色玻璃 */
 .login-card {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: 24px;
   padding: 2.5rem;
-  box-shadow:
-    0 20px 60px rgba(59, 130, 246, 0.1),
-    0 8px 20px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  animation: fade-in-up 0.6s ease-out 0.2s backwards;
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.05); /* Softer shadow */
+  transition: transform 0.3s ease;
 }
 
-.card-header {
+.login-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+}
+
+.header {
   text-align: center;
   margin-bottom: 2rem;
 }
 
-.card-title {
-  font-size: 1.75rem;
+.header h2 {
+  font-size: 1.5rem;
   font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 0.5rem 0;
-  letter-spacing: -0.01em;
+  color: #1e293b;
+  margin: 0 0 0.5rem;
 }
 
-.card-description {
-  font-size: 0.95rem;
+.header p {
   color: #64748b;
+  font-size: 0.95rem;
   margin: 0;
 }
 
-/* 错误提示 */
-.error-banner {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 12px;
-  color: #dc2626;
-  font-size: 0.875rem;
-  margin-bottom: 1.5rem;
-}
-
-.error-icon {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-}
-
-/* 表单 */
-.login-form {
+/* 表单样式 */
+.form-stack {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.form-group {
+.input-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.form-label {
+.input-group label {
   font-size: 0.875rem;
   font-weight: 600;
   color: #334155;
 }
 
-.input-wrapper {
+.input-field {
   position: relative;
-  display: flex;
-  align-items: center;
-  border: 2px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
-  background: white;
   transition: all 0.2s ease;
 }
 
-.input-wrapper:focus-within {
-  border-color: #3B82F6;
+.input-field:focus-within {
+  border-color: #3b82f6;
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  background: #fff;
 }
 
-.input-wrapper.error {
+.input-field.has-error {
   border-color: #ef4444;
+  background: #fef2f2;
 }
 
-.input-icon {
-  width: 20px;
-  height: 20px;
-  color: #94a3b8;
-  margin-left: 0.75rem;
-  flex-shrink: 0;
-}
-
-.form-input {
-  flex: 1;
+.input-field input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: transparent;
   border: none;
   outline: none;
-  padding: 0.875rem 1rem;
-  font-size: 1rem;
   color: #0f172a;
-  background: transparent;
+  font-size: 1rem;
 }
 
-.form-input::placeholder {
+.input-field input::placeholder {
   color: #94a3b8;
+}
+
+.field-error {
+  font-size: 0.8rem;
+  color: #ef4444;
+  margin-top: 0.25rem;
 }
 
 /* 按钮 */
-.login-button {
+.submit-btn {
+  margin-top: 1rem;
   width: 100%;
   padding: 1rem;
-  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
   border: none;
   border-radius: 12px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 0.5rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.login-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.login-button:hover:not(:disabled)::before {
-  left: 100%;
-}
-
-.login-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
-}
-
-.login-button:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.login-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.button-content {
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
 }
 
-.spinner {
-  width: 20px;
-  height: 20px;
-  animation: spin 1s linear infinite;
+.submit-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
 }
 
-.spinner-path {
-  transform-origin: center;
-  animation: spin 1s linear infinite;
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* 底部 */
-.card-footer {
+/* 底部链接 */
+.footer-links {
   margin-top: 2rem;
   text-align: center;
-}
-
-.footer-text {
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   color: #64748b;
-  margin: 0;
 }
 
-.link-button {
-  background: none;
-  border: none;
-  color: #3B82F6;
-  font-size: 0.875rem;
+.register-link {
+  color: #2563eb;
   font-weight: 600;
   cursor: pointer;
+  margin-left: 0.5rem;
   text-decoration: none;
   transition: color 0.2s;
-  margin-left: 0.25rem;
 }
 
-.link-button:hover {
-  color: #2563EB;
+.register-link:hover {
+  color: #1d4ed8;
   text-decoration: underline;
 }
 
-/* 动画 */
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0.3s ease;
+/* 错误提示 */
+.error-alert {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  color: #b91c1c;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.fade-slide-enter-from {
-  opacity: 0;
-  transform: translateY(-10px);
+.error-alert .icon {
+  width: 18px;
+  height: 18px;
+  background: #ef4444;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
 }
 
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(10px);
+/* Spinner */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
-.button-loading-enter-active,
-.button-loading-leave-active {
-  transition: all 0.2s ease;
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* 响应式 */
-@media (max-width: 640px) {
-  .login-container {
-    padding: 1rem;
-  }
-
-  .login-card {
-    padding: 2rem 1.5rem;
-  }
-
-  .logo-title {
-    font-size: 2rem;
-  }
-
-  .card-title {
-    font-size: 1.5rem;
-  }
-}
-
 @media (max-width: 480px) {
   .login-card {
-    padding: 1.5rem 1rem;
-  }
-
-  .logo-section {
-    margin-bottom: 2rem;
-  }
-
-  .logo-icon {
-    width: 60px;
-    height: 60px;
-  }
-
-  .logo-title {
-    font-size: 1.75rem;
+    padding: 2rem 1.5rem;
+    background: rgba(255, 255, 255, 0.8);
   }
 }
 </style>

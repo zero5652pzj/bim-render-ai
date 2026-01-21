@@ -215,8 +215,7 @@ function getContentColor(type: string) {
   --text-secondary: rgba(255, 255, 255, 0.85);
   --text-muted: rgba(255, 255, 255, 0.6);
 
-  width: 60%;
-  min-width: 500px;
+  width: 100%;
   height: 100%;
   background: rgba(15, 23, 42, 0.7);
   backdrop-filter: blur(24px) saturate(180%);

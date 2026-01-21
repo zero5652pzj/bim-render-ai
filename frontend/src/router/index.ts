@@ -23,6 +23,12 @@ const router = createRouter({
       meta: { requiresAuth: false },
     },
     {
+      path: '/chat',
+      name: 'chat',
+      component: () => import('@/views/ChatView.vue'),
+      meta: { requiresAuth: false },
+    },
+    {
       path: '/mcp-test',
       name: 'mcp-test',
       component: () => import('@/views/MCPTestView.vue'),

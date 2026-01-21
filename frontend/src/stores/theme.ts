@@ -11,7 +11,7 @@ const THEME_STORAGE_KEY = 'app-theme'
 
 export const useThemeStore = defineStore('theme', () => {
   // 当前主题名称
-  const currentTheme = ref<ThemeName>('dark')
+  const currentTheme = ref<ThemeName>('light')
 
   // 是否已初始化
   const initialized = ref(false)
@@ -32,21 +32,20 @@ export const useThemeStore = defineStore('theme', () => {
     if (savedTheme && savedTheme in themes) {
       currentTheme.value = savedTheme
     } else {
-      // 检测系统偏好
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      currentTheme.value = prefersDark ? 'dark' : 'light'
+      // 默认使用浅色主题
+      currentTheme.value = 'light'
     }
 
     // 应用主题
     applyTheme(currentTheme.value)
     initialized.value = true
 
-    // 监听系统主题变化
+    // 监听系统主题变化 (仅当用户未设置偏好时可选择性跟随，此处为保持默认浅色，暂不强制自动切换)
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
       // 如果用户没有手动设置过主题，则跟随系统
       const hasSavedTheme = localStorage.getItem(THEME_STORAGE_KEY)
       if (!hasSavedTheme) {
-        currentTheme.value = e.matches ? 'dark' : 'light'
+        // currentTheme.value = e.matches ? 'dark' : 'light' // Disable auto-switch to enforce default light unless requested
       }
     })
   }
@@ -83,6 +82,13 @@ export const useThemeStore = defineStore('theme', () => {
     root.style.setProperty('--error', colors.error)
 
     root.style.setProperty('--shadow', colors.shadow)
+
+    root.style.setProperty('--glass-border', colors.glassBorder)
+    root.style.setProperty('--glass-shadow', colors.glassShadow)
+
+    root.style.setProperty('--neon-blue', colors.neonBlue)
+    root.style.setProperty('--neon-violet', colors.neonViolet)
+    root.style.setProperty('--neon-cyan', colors.neonCyan)
   }
 
   // 切换主题

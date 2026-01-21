@@ -859,31 +859,18 @@ function handleFileSelect(event: Event) {
 /* ========================================
    CSS 变量 - 主题配色方案
    ======================================== */
-
-/* 深色主题 (默认) */
-:deep(.main-container),
-.main-container {
-  --glass-bg: rgba(15, 23, 42, 0.75);
-  --glass-border: rgba(59, 130, 246, 0.25);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --neon-blue: #3B82F6;
-  --neon-violet: #8B5CF6;
-  --neon-cyan: #06B6D4;
-}
-
-/* 浅色主题 */
-:root[data-theme="light"] :deep(.main-container),
-:root[data-theme="light"] .main-container {
-  --glass-bg: rgba(255, 255, 255, 0.85);
-  --glass-border: #D9D9E3;
-  --glass-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --neon-blue: #10A37F;
-  --neon-violet: #3B82F6;
-  --neon-cyan: #06B6D4;
-}
+/* ��量已移至全局 theme store 管理 */
 
 /* 主容器 */
 .main-container {
+  /* 映射全局变���到本地变量名，保持兼容性 */
+  --glass-bg: var(--bg-glass);
+  --glass-border: var(--glass-border);
+  --glass-shadow: var(--glass-shadow);
+  --neon-blue: var(--neon-blue);
+  --neon-violet: var(--neon-violet);
+  --neon-cyan: var(--neon-cyan);
+
   display: flex;
   height: 100vh;
   overflow: hidden;
@@ -2357,15 +2344,17 @@ function handleFileSelect(event: Event) {
 }
 
 .message-ai .message-content {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(139, 92, 246, 0.85) 100%) !important;
+  /* 调整为更明亮的渐变色 (Blue 500 -> Violet 500 adjusted to lighter opacity/mix) */
+  /* 或者直接使用 lighter colors: Blue 400 (#60A5FA) -> Violet 400 (#A78BFA) */
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.8) 0%, rgba(139, 92, 246, 0.75) 100%) !important;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   color: white !important;
   border-radius: 20px 20px 20px 6px !important;
   box-shadow:
-    0 4px 16px rgba(59, 130, 246, 0.3),
-    0 0 20px rgba(59, 130, 246, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    0 4px 16px rgba(59, 130, 246, 0.25),
+    0 0 20px rgba(59, 130, 246, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
   border: 1px solid rgba(59, 130, 246, 0.3) !important;
 }
 
@@ -2390,25 +2379,27 @@ function handleFileSelect(event: Event) {
 }
 
 .message-user .message-content {
-  background: rgba(15, 23, 42, 0.7) !important;
+  /* 调亮背景，使用品牌色透明度代替深色背景 */
+  background: rgba(59, 130, 246, 0.15) !important;
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   color: var(--text-primary) !important;
   border-radius: 20px 20px 6px 20px !important;
   box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
 }
 
 /* 浅色主题用户消息 */
 :root[data-theme="light"] .message-user .message-content {
-  background: #3B82F6 !important;
-  color: white !important;
-  border: 1px solid #2563EB !important;
+  /* 改为清爽的浅蓝色玻璃态 */
+  background: rgba(59, 130, 246, 0.1) !important;
+  color: #0F172A !important; /* 深色文字 (Slate 900) */
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
   box-shadow:
-    0 2px 8px rgba(59, 130, 246, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    0 2px 8px rgba(59, 130, 246, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
 }
 
 /* ========================================
@@ -2426,15 +2417,16 @@ function handleFileSelect(event: Event) {
 
 /* AI思考气泡样式，与AI消息保持一致 */
 .ai-typing {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(139, 92, 246, 0.85) 100%) !important;
+  /* 匹配新的 AI 消息样式 */
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.8) 0%, rgba(139, 92, 246, 0.75) 100%) !important;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   color: white !important;
   border-radius: 20px 20px 20px 6px !important;
   box-shadow:
-    0 4px 16px rgba(59, 130, 246, 0.3),
-    0 0 20px rgba(59, 130, 246, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    0 4px 16px rgba(59, 130, 246, 0.25),
+    0 0 20px rgba(59, 130, 246, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
   border: 1px solid rgba(59, 130, 246, 0.3) !important;
 }
 
@@ -2812,17 +2804,17 @@ function handleFileSelect(event: Event) {
 }
 
 .chat-area {
-  flex: 0 0 40%;
-  max-width: 40%;
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  min-width: 0;
-  order: 2;
+  order: 1;
 }
 
 .preview-area {
-  order: 1;
+  width: 400px;
   flex-shrink: 0;
+  order: 2;
 }
 
 /* 调整聊天容器样式以适应新布局 */
